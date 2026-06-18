@@ -30,10 +30,20 @@ export function defaultFilters(): ClipFilters {
   }
 }
 
+// Local 'YYYY-MM-DD' for the clip's timestamp — must match what DateCell shows
+// (it formats in local time), so date-range filtering lines up with the visible date.
+function localDateString(iso: string): string {
+  const d = new Date(iso)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 function matchesDate(clip: ClipData, filters: ClipFilters): boolean {
   if (!filters.dateFrom && !filters.dateTo) return true
   if (!clip.dateShot) return false
-  const date = clip.dateShot.slice(0, 10) // 'YYYY-MM-DD' from ISO string
+  const date = localDateString(clip.dateShot)
   if (filters.dateFrom && date < filters.dateFrom) return false
   if (filters.dateTo && date > filters.dateTo) return false
   return true
@@ -42,7 +52,7 @@ function matchesDate(clip: ClipData, filters: ClipFilters): boolean {
 function matchesTags(clip: ClipData, filters: ClipFilters): boolean {
   for (const [category, selected] of Object.entries(filters.tags) as [TagCategory, string[]][]) {
     if (!selected || selected.length === 0) continue
-    const clipTags = clip[category]
+    const clipTags = clip[category] ?? []
     const hasAny = selected.some((t) => clipTags.includes(t))
     if (!hasAny) return false
   }
@@ -57,7 +67,7 @@ export function filterClips(clips: ClipData[], filters: ClipFilters): ClipData[]
     if (filters.durationMax !== null && clip.duration > filters.durationMax) return false
     if (!matchesDate(clip, filters)) return false
     if (filters.needsDescription && (clip.sceneDescription || clip.missing)) return false
-    if (filters.needsTags && AI_TAG_CATEGORIES.some((c) => clip[c].length > 0)) return false
+    if (filters.needsTags && AI_TAG_CATEGORIES.some((c) => (clip[c] ?? []).length > 0)) return false
     if (!matchesTags(clip, filters)) return false
     return true
   })
@@ -83,6 +93,6 @@ export function availableCodecs(clips: ClipData[]): string[] {
 }
 
 export function availableTagValues(clips: ClipData[], category: TagCategory): string[] {
-  const all = clips.flatMap((c) => c[category])
+  const all = clips.flatMap((c) => c[category] ?? [])
   return [...new Set(all)].sort()
 }

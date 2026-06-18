@@ -1,3 +1,7 @@
+// Pin a negative-offset timezone so date-basis tests are deterministic and can
+// distinguish local-date filtering from UTC-slice filtering.
+process.env.TZ = 'America/Los_Angeles'
+
 import { describe, it, expect } from 'vitest'
 import {
   defaultFilters,
@@ -74,21 +78,58 @@ describe('filterClips — duration', () => {
 })
 
 describe('filterClips — date range', () => {
+  // Midday-UTC timestamps so the calendar date is the same in any timezone.
   const clips = [
-    makeClip({ dateShot: '2026-01-01T00:00:00.000Z' }),
-    makeClip({ dateShot: '2026-06-15T00:00:00.000Z' }),
+    makeClip({ dateShot: '2026-01-01T12:00:00.000Z' }),
+    makeClip({ dateShot: '2026-06-15T12:00:00.000Z' }),
     makeClip({ dateShot: null })
   ]
 
   it('filters between from and to (inclusive of date portion)', () => {
     const out = filterClips(clips, { ...defaultFilters(), dateFrom: '2026-01-01', dateTo: '2026-03-01' })
     expect(out).toHaveLength(1)
-    expect(out[0].dateShot).toBe('2026-01-01T00:00:00.000Z')
+    expect(out[0].dateShot).toBe('2026-01-01T12:00:00.000Z')
   })
 
   it('excludes clips with null dateShot when a date bound is set', () => {
     const out = filterClips(clips, { ...defaultFilters(), dateFrom: '2025-01-01' })
     expect(out.every((c) => c.dateShot !== null)).toBe(true)
+  })
+
+  it('uses the LOCAL calendar date, matching what DateCell displays', () => {
+    // 02:00 UTC on Jan 15 is Jan 14 in America/Los_Angeles — which is what the
+    // table shows. Filtering "from Jan 15" must therefore EXCLUDE this clip.
+    const clip = makeClip({ dateShot: '2026-01-15T02:00:00.000Z' })
+    expect(filterClips([clip], { ...defaultFilters(), dateFrom: '2026-01-15' })).toHaveLength(0)
+    expect(filterClips([clip], { ...defaultFilters(), dateFrom: '2026-01-14' })).toHaveLength(1)
+  })
+})
+
+describe('filterClips — resilience to undefined tag arrays (older/partial data)', () => {
+  function clipMissing(category: keyof ClipData): ClipData {
+    const c = makeClip()
+    delete (c as Record<string, unknown>)[category]
+    return c
+  }
+
+  it('needsTags does not throw when an AI tag array is undefined', () => {
+    const clip = clipMissing('mood')
+    expect(() => filterClips([clip], { ...defaultFilters(), needsTags: true })).not.toThrow()
+  })
+
+  it('tag filtering does not throw when the category array is undefined', () => {
+    const clip = clipMissing('mood')
+    expect(() =>
+      filterClips([clip], { ...defaultFilters(), tags: { mood: ['Tense'] } })
+    ).not.toThrow()
+    // undefined array → no match → excluded
+    expect(filterClips([clip], { ...defaultFilters(), tags: { mood: ['Tense'] } })).toHaveLength(0)
+  })
+
+  it('availableTagValues does not throw when a clip is missing the category', () => {
+    const clips = [makeClip({ mood: ['Tense'] }), clipMissing('mood')]
+    expect(() => availableTagValues(clips, 'mood')).not.toThrow()
+    expect(availableTagValues(clips, 'mood')).toEqual(['Tense'])
   })
 })
 
