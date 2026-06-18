@@ -92,6 +92,22 @@ describe('SettingsDialog — model-missing download flow', () => {
   })
 })
 
+describe('SettingsDialog — re-test on provider switch', () => {
+  it('re-runs the connection test when the provider changes while open', async () => {
+    render(<SettingsDialog open={true} onOpenChange={vi.fn()} />)
+    // initial auto-test on open
+    await vi.waitFor(() => expect(window.api.testAIConnection).toHaveBeenCalledTimes(1))
+
+    act(() => {
+      useSettingsStore.setState({
+        settings: { ...defaultSettings, aiProvider: 'gemini', gemini: { apiKey: 'k', model: 'gemini-2.5-flash' } }
+      })
+    })
+
+    await vi.waitFor(() => expect(window.api.testAIConnection).toHaveBeenCalledTimes(2))
+  })
+})
+
 describe('SettingsDialog — unreachable steering', () => {
   beforeEach(() => {
     vi.mocked(window.api.testAIConnection).mockResolvedValue({

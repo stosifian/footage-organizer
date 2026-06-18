@@ -41,10 +41,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     }
   }, [])
 
-  // Auto-test the connection whenever the dialog is opened.
+  // Auto-test the connection when the dialog opens, and again whenever the
+  // selected provider changes while open (so the reason-based CTAs stay current).
   useEffect(() => {
     if (open) handleTestConnection()
-  }, [open, handleTestConnection])
+  }, [open, settings.aiProvider, handleTestConnection])
 
   const handleDownloadModel = async () => {
     setPulling(true)
