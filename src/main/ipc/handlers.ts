@@ -2,6 +2,7 @@ import fs from 'fs'
 import { ipcMain, dialog, BrowserWindow, shell } from 'electron'
 import { scanDirectory, cancelScan } from './scan'
 import { setRootDir, handleGetThumbnail } from './ffmpeg'
+import { pruneOrphanThumbnails, enforceThumbnailBudget } from '../services/thumbnail-cache'
 import { handleGenerateDescription, handleGenerateDescriptionsBatch, handleClassifyBatch, handleExtractKeywords, handleTestConnection, cancelGeneration } from './ai'
 import { saveProject, loadProject, loadAllProjects, loadSettings, saveSettings, computeRelinkPreview, findDroppedFolder, type RelinkPreview } from './persistence'
 
@@ -28,9 +29,15 @@ export function registerIpcHandlers(getWindow: () => BrowserWindow | null): void
     if (!window) return
 
     setRootDir(dirPath)
-    await scanDirectory(dirPath, window)
+    const clips = await scanDirectory(dirPath, window)
     // Clips are streamed to the renderer via 'scan-clip' events as they are probed.
     // The return value is intentionally void.
+
+    // Clean up thumbnails after the scan settles — non-blocking, never fails the scan.
+    setImmediate(() => {
+      pruneOrphanThumbnails(dirPath, clips.map((c) => c.relativePath))
+      enforceThumbnailBudget()
+    })
   })
 
   ipcMain.handle('get-thumbnail', async (_event, clipId: string, filePath: string, relativePath: string, duration: number) => {

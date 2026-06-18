@@ -1,8 +1,10 @@
-import { execFile } from 'child_process'
-import { promisify } from 'util'
 import { app } from 'electron'
+import { execFileWithTimeout } from './exec-timeout'
 
-const execFileAsync = promisify(execFile)
+// Hard timeouts so a corrupt/stalled file fails just that call instead of hanging forever.
+const PROBE_TIMEOUT_MS = 30_000
+const THUMBNAIL_TIMEOUT_MS = 30_000
+const FRAME_TIMEOUT_MS = 30_000
 
 function resolveBundledBinary(packageName: string, pathKey?: string): string {
   try {
@@ -27,15 +29,15 @@ export interface ProbeResult {
 }
 
 export async function probeFile(filePath: string, signal?: AbortSignal): Promise<ProbeResult> {
-  const { stdout } = await execFileAsync(ffprobeBin, [
+  const { stdout } = await execFileWithTimeout(ffprobeBin, [
     '-v', 'quiet',
     '-print_format', 'json',
     '-show_format',
     '-show_streams',
     filePath
-  ], { signal })
+  ], { signal }, PROBE_TIMEOUT_MS)
 
-  const data = JSON.parse(stdout)
+  const data = JSON.parse(stdout as string)
   const videoStream = data.streams?.find((s: Record<string, string>) => s.codec_type === 'video')
   const format = data.format || {}
 
@@ -64,7 +66,7 @@ export async function extractThumbnail(
   outputPath: string,
   timestamp: number
 ): Promise<void> {
-  await execFileAsync(ffmpegBin, [
+  await execFileWithTimeout(ffmpegBin, [
     '-ss', String(timestamp),
     '-i', filePath,
     '-vframes', '1',
@@ -72,7 +74,7 @@ export async function extractThumbnail(
     '-q:v', '6',
     '-y',
     outputPath
-  ])
+  ], {}, THUMBNAIL_TIMEOUT_MS)
 }
 
 export async function extractFrames(
@@ -86,7 +88,7 @@ export async function extractFrames(
   return Promise.all(
     positions.map(async (pos) => {
       const timestamp = duration * pos
-      const { stdout } = await execFileAsync('ffmpeg', [
+      const { stdout } = await execFileWithTimeout(ffmpegBin, [
         '-ss', String(timestamp),
         '-i', filePath,
         '-vframes', '1',
@@ -95,7 +97,7 @@ export async function extractFrames(
         '-c:v', 'mjpeg',
         '-q:v', '4',
         'pipe:1'
-      ], { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024 })
+      ], { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024 }, FRAME_TIMEOUT_MS)
       return stdout as unknown as Buffer
     })
   )

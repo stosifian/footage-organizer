@@ -3,6 +3,9 @@ import crypto from 'crypto'
 import fs from 'fs'
 import { app } from 'electron'
 import { extractThumbnail } from './ffmpeg-wrapper'
+import { selectOrphans, selectEvictions, type ThumbFile } from './thumbnail-cleanup'
+
+const THUMBNAIL_BUDGET_BYTES = 500 * 1024 * 1024 // 500 MB across all projects
 
 const LRU_MAX = 50
 const CONCURRENCY_LIMIT = 4
@@ -107,4 +110,57 @@ export async function getThumbnailBase64(
   const promise = work()
   inFlight.set(cacheKey, promise)
   return promise
+}
+
+// Recursively collect all .jpg files under a directory (absolute paths).
+function collectJpgFiles(dir: string): string[] {
+  const out: string[] = []
+  let entries: fs.Dirent[]
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true })
+  } catch {
+    return out
+  }
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) out.push(...collectJpgFiles(full))
+    else if (entry.name.endsWith('.jpg')) out.push(full)
+  }
+  return out
+}
+
+// Remove thumbnails in a project's dir that no longer match a current clip
+// (renamed/deleted footage). Best-effort: never throws.
+export function pruneOrphanThumbnails(rootDir: string, validRelativePaths: string[]): void {
+  try {
+    const thumbDir = getThumbDir(rootDir)
+    const diskFiles = collectJpgFiles(thumbDir)
+    if (diskFiles.length === 0) return
+    const valid = new Set(validRelativePaths.map((rel) => getCachePath(rootDir, rel)))
+    const orphans = selectOrphans(diskFiles, valid)
+    for (const file of orphans) {
+      try { fs.unlinkSync(file) } catch { /* ignore */ }
+    }
+    if (orphans.length > 0) lruCache.clear()
+  } catch { /* cleanup must never break a scan */ }
+}
+
+// Keep total thumbnail storage (all projects) under the budget, evicting the
+// least-recently-modified files first. Best-effort: never throws.
+export function enforceThumbnailBudget(maxBytes: number = THUMBNAIL_BUDGET_BYTES): void {
+  try {
+    const root = path.join(app.getPath('userData'), 'thumbnails')
+    const files: ThumbFile[] = []
+    for (const p of collectJpgFiles(root)) {
+      try {
+        const stat = fs.statSync(p)
+        files.push({ path: p, size: stat.size, mtimeMs: stat.mtimeMs })
+      } catch { /* file vanished — skip */ }
+    }
+    const evictions = selectEvictions(files, maxBytes)
+    for (const file of evictions) {
+      try { fs.unlinkSync(file) } catch { /* ignore */ }
+    }
+    if (evictions.length > 0) lruCache.clear()
+  } catch { /* cleanup must never break a scan */ }
 }
