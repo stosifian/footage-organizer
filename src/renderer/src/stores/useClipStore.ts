@@ -73,8 +73,9 @@ export const useClipStore = create<ClipState>((set, get) => ({
     // scan are ignored by the listeners below.
     const myGen = ++scanGeneration
 
-    // Clear stale clips immediately so the table doesn't show the old directory's data
-    set({ isScanning: true, directory: dirPath, scanProgress: null, clips: [] })
+    // Clear stale clips immediately so the table doesn't show the old directory's data.
+    // Also reset aiErrorCount so a previous project's generation-failure notice doesn't linger.
+    set({ isScanning: true, directory: dirPath, scanProgress: null, clips: [], aiErrorCount: 0 })
 
     // Load the existing project BEFORE the scan starts so merge maps are ready
     // when the first scan-clip events arrive. Wrap in try/catch so a missing or
