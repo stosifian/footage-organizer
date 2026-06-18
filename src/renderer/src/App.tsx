@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef } from 'react'
-import { Search, Sparkles, Square, Video, FolderOpen, Loader2, Download } from 'lucide-react'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import { Search, Sparkles, Square, Video, FolderOpen, Loader2, Download, SlidersHorizontal } from 'lucide-react'
 import { extractDroppedFolderPath, readDroppedDirectoryInfo } from './utils/drag'
 import { clipsToCsv, clipsToJson } from './utils/export'
+import { filterClips, activeFilterCount, defaultFilters, type ClipFilters } from './utils/filter'
+import { FilterPanel } from './components/FilterPanel'
 import { VideoPreviewModal } from './components/VideoPreviewModal'
 import type { ClipData } from './types/clip'
 import { DirectoryPicker } from './components/DirectoryPicker'
@@ -35,6 +37,8 @@ export default function App() {
   const [isDragOver, setIsDragOver] = useState(false)
   const [previewClip, setPreviewClip] = useState<ClipData | null>(null)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [filters, setFilters] = useState<ClipFilters>(defaultFilters())
+  const [filterOpen, setFilterOpen] = useState(false)
   const autoOpenRan = useRef(false)
 
   useEffect(() => {
@@ -90,6 +94,14 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openDirectory, scanDirectory, directory])
+
+  // Reset filters when switching projects — stale codec/tag selections shouldn't carry over.
+  useEffect(() => {
+    setFilters(defaultFilters())
+  }, [directory])
+
+  const filteredClips = useMemo(() => filterClips(clips, filters), [clips, filters])
+  const filterCount = activeFilterCount(filters)
 
   const clipsWithoutDesc = clips.filter((c) => !c.sceneDescription && !c.missing).length
   const clipsNeedingTags = clips.filter(
@@ -185,7 +197,9 @@ export default function App() {
           {clips.length > 0 && (
             <div className="flex items-center gap-2 text-xs text-[#999]">
               <Video size={14} />
-              {clips.length} clips
+              {filteredClips.length === clips.length
+                ? `${clips.length} clips`
+                : `${filteredClips.length} of ${clips.length} clips`}
             </div>
           )}
         </div>
@@ -205,6 +219,37 @@ export default function App() {
                   placeholder="Search clips..."
                   className="bg-[#252525] border border-[#333] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#e5e5e5] placeholder-[#666] outline-none focus:border-[#555] w-[200px]"
                 />
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() => setFilterOpen((v) => !v)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors font-medium ${
+                    filterCount > 0
+                      ? 'bg-blue-600/20 border-blue-600 text-blue-300'
+                      : 'bg-[#252525] hover:bg-[#333] border-[#333]'
+                  }`}
+                  title="Filter clips"
+                >
+                  <SlidersHorizontal size={13} />
+                  Filter
+                  {filterCount > 0 && (
+                    <span className="ml-0.5 px-1.5 rounded-full bg-blue-600 text-white text-[10px] leading-4">
+                      {filterCount}
+                    </span>
+                  )}
+                </button>
+                {filterOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setFilterOpen(false)} />
+                    <FilterPanel
+                      clips={clips}
+                      filters={filters}
+                      onChange={setFilters}
+                      onClear={() => setFilters(defaultFilters())}
+                    />
+                  </>
+                )}
               </div>
 
               {isGenerating ? (
@@ -281,7 +326,7 @@ export default function App() {
 
       {/* Main content */}
       {clips.length > 0 ? (
-        <ClipTable clips={clips} directory={directory!} globalFilter={globalFilter} onPreview={setPreviewClip} />
+        <ClipTable clips={filteredClips} directory={directory!} globalFilter={globalFilter} onPreview={setPreviewClip} hasActiveFilters={filterCount > 0} />
       ) : showScanningState ? (
         <div className="flex-1 flex flex-col items-center justify-center text-[#666]">
           <Loader2 size={36} className="mb-4 animate-spin opacity-40" />

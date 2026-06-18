@@ -18,9 +18,10 @@ interface Props {
   directory: string
   globalFilter: string
   onPreview: (clip: ClipData) => void
+  hasActiveFilters?: boolean
 }
 
-export function ClipTable({ clips, directory, globalFilter, onPreview }: Props) {
+export function ClipTable({ clips, directory, globalFilter, onPreview, hasActiveFilters }: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -144,7 +145,7 @@ export function ClipTable({ clips, directory, globalFilter, onPreview }: Props) 
 
       {rows.length === 0 && (
         <div className="flex items-center justify-center h-32 text-[#666] text-sm">
-          {globalFilter ? 'No clips match your search.' : 'No video clips found.'}
+          {globalFilter || hasActiveFilters ? 'No clips match your filters.' : 'No video clips found.'}
         </div>
       )}
     </div>
