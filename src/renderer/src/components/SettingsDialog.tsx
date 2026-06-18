@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Settings, X, Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { Settings, X, Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
 import { useSettingsStore } from '../stores/useSettingsStore'
 import type { AIProviderType } from '../types/settings'
 
@@ -14,7 +14,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
 
-  const handleTestConnection = async () => {
+  const handleTestConnection = useCallback(async () => {
     setTesting(true)
     setTestResult(null)
     try {
@@ -25,7 +25,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     } finally {
       setTesting(false)
     }
-  }
+  }, [])
+
+  // Auto-test the connection whenever the dialog is opened.
+  useEffect(() => {
+    if (open) handleTestConnection()
+  }, [open, handleTestConnection])
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -69,6 +74,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
             {settings.aiProvider === 'ollama' ? (
               <div className="space-y-3">
+                <div className="text-xs text-[#888] bg-[#202020] border border-[#333] rounded-lg p-3 leading-relaxed">
+                  <div className="text-[#aaa] font-medium mb-1">Local setup</div>
+                  <ol className="list-decimal list-inside space-y-0.5">
+                    <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">ollama.com</a></li>
+                    <li>Pull the model: <code className="text-[#ccc]">ollama pull {settings.ollama.model || 'gemma3'}</code></li>
+                    <li>Make sure it's running at the URL below</li>
+                  </ol>
+                </div>
                 <div>
                   <label className="text-xs text-[#999] block mb-1">Base URL</label>
                   <input
@@ -95,7 +108,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             ) : (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-[#999] block mb-1">API Key</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs text-[#999]">API Key</label>
+                    <a
+                      href="https://aistudio.google.com/apikey"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-xs text-blue-400 hover:underline"
+                    >
+                      Get an API key <ExternalLink size={11} />
+                    </a>
+                  </div>
                   <input
                     type="password"
                     value={settings.gemini.apiKey}

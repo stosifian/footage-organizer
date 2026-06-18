@@ -20,6 +20,7 @@ interface ClipState {
   isGenerating: boolean
   customTags: Record<string, string[]>
   pendingRelink: RelinkPreview | null
+  aiErrorCount: number
 
   openDirectory: () => Promise<void>
   scanDirectory: (dirPath: string) => Promise<void>
@@ -53,6 +54,7 @@ export const useClipStore = create<ClipState>((set, get) => ({
   isGenerating: false,
   customTags: { visualTexture: [], energy: [], mood: [], lightQuality: [], location: [] },
   pendingRelink: null,
+  aiErrorCount: 0,
 
   openDirectory: async () => {
     const dirPath = await window.api.selectDirectory()
@@ -298,7 +300,7 @@ export const useClipStore = create<ClipState>((set, get) => ({
     const clips = get().clips.filter((c) => !c.sceneDescription && !c.missing)
     if (clips.length === 0) return
 
-    set({ isGenerating: true, aiProgress: null })
+    set({ isGenerating: true, aiProgress: null, aiErrorCount: 0 })
 
     const unsubProgress = window.api.onAIProgress((progress) => {
       if (myGen !== generateGeneration) return
@@ -325,6 +327,7 @@ export const useClipStore = create<ClipState>((set, get) => ({
       if (myGen !== generateGeneration) return
       const { id, error: errMsg } = error as { id: string; error: string }
       console.error(`AI error for clip ${id}:`, errMsg)
+      set((s) => ({ aiErrorCount: s.aiErrorCount + 1 }))
     })
 
     try {
@@ -358,7 +361,7 @@ export const useClipStore = create<ClipState>((set, get) => ({
     )
     if (clips.length === 0) return
 
-    set({ isGenerating: true, aiProgress: null })
+    set({ isGenerating: true, aiProgress: null, aiErrorCount: 0 })
 
     const unsubProgress = window.api.onAIProgress((progress) => {
       if (myGen !== generateGeneration) return
@@ -380,6 +383,7 @@ export const useClipStore = create<ClipState>((set, get) => ({
       if (myGen !== generateGeneration) return
       const { id, error: errMsg } = error as { id: string; error: string }
       console.error(`Tag error for clip ${id}:`, errMsg)
+      set((s) => ({ aiErrorCount: s.aiErrorCount + 1 }))
     })
 
     try {
