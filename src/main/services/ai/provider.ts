@@ -9,11 +9,18 @@ export interface SceneAnalysis {
 
 export type EnumTags = Omit<SceneAnalysis, 'description' | 'keywords'>
 
+export interface ConnectionResult {
+  success: boolean
+  message: string
+  // Why it failed (drives the onboarding CTA). Undefined on success.
+  reason?: 'unreachable' | 'model-missing'
+}
+
 export interface AIProvider {
   analyzeScene(frames: Buffer[]): Promise<SceneAnalysis>
   classifyFromDescription(description: string): Promise<EnumTags>
   extractKeywords(description: string): Promise<string[]>
-  testConnection(): Promise<{ success: boolean; message: string }>
+  testConnection(): Promise<ConnectionResult>
 }
 
 // These arrays are the single source of truth for valid enum values.

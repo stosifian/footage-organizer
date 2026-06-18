@@ -3,7 +3,7 @@ import { ipcMain, dialog, BrowserWindow, shell } from 'electron'
 import { scanDirectory, cancelScan } from './scan'
 import { setRootDir, handleGetThumbnail } from './ffmpeg'
 import { pruneOrphanThumbnails, enforceThumbnailBudget } from '../services/thumbnail-cache'
-import { handleGenerateDescription, handleGenerateDescriptionsBatch, handleClassifyBatch, handleExtractKeywords, handleTestConnection, cancelGeneration } from './ai'
+import { handleGenerateDescription, handleGenerateDescriptionsBatch, handleClassifyBatch, handleExtractKeywords, handleTestConnection, handlePullModel, cancelOllamaPull, cancelGeneration } from './ai'
 import { saveProject, loadProject, loadAllProjects, loadSettings, saveSettings, computeRelinkPreview, findDroppedFolder, type RelinkPreview } from './persistence'
 
 let pendingRelink: RelinkPreview | null = null
@@ -82,6 +82,16 @@ export function registerIpcHandlers(getWindow: () => BrowserWindow | null): void
 
   ipcMain.handle('test-ai-connection', async () => {
     return handleTestConnection()
+  })
+
+  ipcMain.handle('pull-ollama-model', async () => {
+    const window = getWindow()
+    if (!window) return { success: false, message: 'No window.' }
+    return handlePullModel(window)
+  })
+
+  ipcMain.handle('cancel-ollama-pull', () => {
+    cancelOllamaPull()
   })
 
   ipcMain.handle('load-all-projects', async () => {

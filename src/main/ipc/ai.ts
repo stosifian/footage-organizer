@@ -1,6 +1,7 @@
 import type { BrowserWindow } from 'electron'
 import { extractFrames } from '../services/ffmpeg-wrapper'
 import { getProvider } from '../services/ai'
+import { OllamaProvider } from '../services/ai/ollama-provider'
 import { loadSettings } from './persistence'
 
 // Ollama runs on a single GPU/CPU thread — no benefit to >1 concurrent AI call.
@@ -167,8 +168,35 @@ export async function handleExtractKeywords(description: string): Promise<string
   return provider.extractKeywords(description)
 }
 
-export async function handleTestConnection(): Promise<{ success: boolean; message: string }> {
+export async function handleTestConnection(): Promise<{ success: boolean; message: string; reason?: string }> {
   const config = getAIConfig()
   const provider = getProvider(config)
   return provider.testConnection()
+}
+
+export async function handlePullModel(
+  window: BrowserWindow
+): Promise<{ success: boolean; message?: string }> {
+  const config = getAIConfig()
+  if (config.provider !== 'ollama') {
+    return { success: false, message: 'Model download is only available for Ollama.' }
+  }
+  const provider = getProvider(config)
+  if (!(provider instanceof OllamaProvider)) {
+    return { success: false, message: 'Ollama provider unavailable.' }
+  }
+  try {
+    await provider.pullModel((p) => window.webContents.send('ollama-pull-progress', p))
+    return { success: true }
+  } catch (err) {
+    // Includes user-initiated abort — the renderer treats cancel as its own path.
+    return { success: false, message: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+export function cancelOllamaPull(): void {
+  const config = getAIConfig()
+  if (config.provider !== 'ollama') return
+  const provider = getProvider(config)
+  if (provider instanceof OllamaProvider) provider.cancelPull()
 }

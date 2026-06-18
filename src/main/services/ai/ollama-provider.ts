@@ -1,11 +1,13 @@
-import { Ollama } from 'ollama'
-import type { AIProvider } from './provider'
+import { Ollama, type AbortableAsyncIterator, type ProgressResponse } from 'ollama'
+import type { AIProvider, ConnectionResult } from './provider'
 import { COMBINED_PROMPT, CLASSIFY_PROMPT, KEYWORDS_PROMPT, parseCombinedResponse, parseEnumResponse } from './provider'
 import type { EnumTags } from './provider'
+import { pullProgressToPercent } from './pull-progress'
 
 export class OllamaProvider implements AIProvider {
   private client: Ollama
   private model: string
+  private activePull: AbortableAsyncIterator<ProgressResponse> | null = null
 
   constructor(baseUrl: string, model: string) {
     this.client = new Ollama({ host: baseUrl })
@@ -56,7 +58,7 @@ export class OllamaProvider implements AIProvider {
       .slice(0, 5)
   }
 
-  async testConnection(): Promise<{ success: boolean; message: string }> {
+  async testConnection(): Promise<ConnectionResult> {
     try {
       const models = await this.client.list()
       const available = models.models.map((m) => m.name)
@@ -67,13 +69,34 @@ export class OllamaProvider implements AIProvider {
       }
       return {
         success: false,
-        message: `Connected but model "${this.model}" not found. Available: ${available.join(', ')}`
+        reason: 'model-missing',
+        message: `Connected, but model "${this.model}" isn't downloaded yet.`
       }
     } catch (err) {
       return {
         success: false,
+        reason: 'unreachable',
         message: `Cannot connect to Ollama: ${err instanceof Error ? err.message : String(err)}`
       }
     }
+  }
+
+  // Download the configured model via the streaming pull API. Reports integer
+  // percent progress; cancellable through cancelPull().
+  async pullModel(onProgress: (p: { status: string; percent: number }) => void): Promise<void> {
+    const iterator = await this.client.pull({ model: this.model, stream: true })
+    this.activePull = iterator
+    try {
+      for await (const part of iterator) {
+        onProgress({ status: part.status, percent: pullProgressToPercent(part) })
+      }
+    } finally {
+      this.activePull = null
+    }
+  }
+
+  cancelPull(): void {
+    this.activePull?.abort()
+    this.activePull = null
   }
 }
