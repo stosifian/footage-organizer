@@ -1,9 +1,12 @@
-import { useEffect, useState, useRef, useMemo } from 'react'
-import { Search, Sparkles, Square, Video, FolderOpen, Loader2, Download, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import { Search, Sparkles, Square, Video, FolderOpen, Loader2, Download, SlidersHorizontal, AlertTriangle, X } from 'lucide-react'
 import { extractDroppedFolderPath, readDroppedDirectoryInfo } from './utils/drag'
 import { clipsToCsv, clipsToJson } from './utils/export'
 import { filterClips, activeFilterCount, defaultFilters, type ClipFilters } from './utils/filter'
+import { isProviderConfigured, notConfiguredHint, type AIStatus } from './utils/ai-status'
 import { FilterPanel } from './components/FilterPanel'
+import { AIStatusPill } from './components/AIStatusPill'
+import { AISetupBanner } from './components/AISetupBanner'
 import { VideoPreviewModal } from './components/VideoPreviewModal'
 import type { ClipData } from './types/clip'
 import { DirectoryPicker } from './components/DirectoryPicker'
@@ -26,7 +29,8 @@ export default function App() {
     scanDirectory,
     generateAllDescriptions,
     tagAllDescribed,
-    stopGeneration
+    stopGeneration,
+    aiErrorCount
   } = useClipStore()
 
   const { settings, loaded: settingsLoaded, loadSettings } = useSettingsStore()
@@ -39,6 +43,10 @@ export default function App() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [filters, setFilters] = useState<ClipFilters>(defaultFilters())
   const [filterOpen, setFilterOpen] = useState(false)
+  const [aiStatus, setAiStatus] = useState<{ status: AIStatus; message: string }>({ status: 'checking', message: '' })
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+  const [errorNoticeDismissed, setErrorNoticeDismissed] = useState(false)
+  const aiCheckGen = useRef(0)
   const autoOpenRan = useRef(false)
 
   useEffect(() => {
@@ -99,6 +107,37 @@ export default function App() {
   useEffect(() => {
     setFilters(defaultFilters())
   }, [directory])
+
+  // Check AI provider status. Reads fresh settings from the store so it's a stable
+  // callback (no per-keystroke network calls); a ref counter ignores stale results.
+  const checkAIStatus = useCallback(async () => {
+    const myGen = ++aiCheckGen.current
+    const current = useSettingsStore.getState().settings
+    setBannerDismissed(false)
+    if (!isProviderConfigured(current)) {
+      setAiStatus({ status: 'not-ready', message: notConfiguredHint(current) ?? '' })
+      return
+    }
+    setAiStatus((s) => ({ status: 'checking', message: s.message }))
+    try {
+      const res = await window.api.testAIConnection()
+      if (myGen !== aiCheckGen.current) return
+      setAiStatus({ status: res.success ? 'ready' : 'not-ready', message: res.message })
+    } catch (err) {
+      if (myGen !== aiCheckGen.current) return
+      setAiStatus({ status: 'not-ready', message: String(err) })
+    }
+  }, [])
+
+  // Initial check once settings have loaded.
+  useEffect(() => {
+    if (settingsLoaded) checkAIStatus()
+  }, [settingsLoaded, checkAIStatus])
+
+  // Re-show the failure notice when a fresh batch starts (aiErrorCount resets to 0).
+  useEffect(() => {
+    if (aiErrorCount === 0) setErrorNoticeDismissed(false)
+  }, [aiErrorCount])
 
   const filteredClips = useMemo(() => filterClips(clips, filters), [clips, filters])
   const filterCount = activeFilterCount(filters)
@@ -315,9 +354,49 @@ export default function App() {
             </>
           )}
 
-          <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+          <AIStatusPill status={aiStatus.status} onClick={() => setSettingsOpen(true)} />
+
+          <SettingsDialog
+            open={settingsOpen}
+            onOpenChange={(o) => {
+              setSettingsOpen(o)
+              if (!o) checkAIStatus() // re-check after the user may have edited settings
+            }}
+          />
         </div>
       </header>
+
+      {/* AI setup banner */}
+      {aiStatus.status === 'not-ready' && !bannerDismissed && (
+        <AISetupBanner
+          message={aiStatus.message || 'AI provider is not set up — descriptions and tags can’t be generated.'}
+          onConfigure={() => setSettingsOpen(true)}
+          onDismiss={() => setBannerDismissed(true)}
+        />
+      )}
+
+      {/* Generation-failure notice */}
+      {aiErrorCount > 0 && !isGenerating && !errorNoticeDismissed && (
+        <div className="flex items-center gap-3 px-4 py-2 bg-red-600/10 border-b border-red-700/40 text-xs text-red-200">
+          <AlertTriangle size={14} className="shrink-0 text-red-400" />
+          <span className="flex-1">
+            {aiErrorCount} {aiErrorCount === 1 ? 'clip' : 'clips'} failed to generate — check your AI setup.
+          </span>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition-colors"
+          >
+            Open Settings
+          </button>
+          <button
+            onClick={() => setErrorNoticeDismissed(true)}
+            aria-label="Dismiss"
+            className="p-1 rounded hover:bg-red-600/20 text-red-300/70 hover:text-red-200 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Progress */}
       {(isScanning || isGenerating) && (

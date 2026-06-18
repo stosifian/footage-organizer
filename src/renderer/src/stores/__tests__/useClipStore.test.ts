@@ -57,4 +57,10 @@ describe('scanDirectory', () => {
     await useClipStore.getState().scanDirectory('/Volumes/SSD/footage')
     expect(useClipStore.getState().directory).toBe('/Volumes/SSD/footage')
   })
+
+  it('resets aiErrorCount so a stale failure notice does not persist across projects', async () => {
+    useClipStore.setState({ aiErrorCount: 5 })
+    await useClipStore.getState().scanDirectory('/Volumes/SSD/other-project')
+    expect(useClipStore.getState().aiErrorCount).toBe(0)
+  })
 })
