@@ -1,11 +1,12 @@
+/* Webfonts: humanist grotesque UI face + technical mono.
+   Must precede @import "tailwindcss" — CSS requires @import rules to come first,
+   otherwise the bundler drops this and the fonts never load. */
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 /* FootageOrganizer — refreshed design system (Graphite·Violet default + Azure/Signal themes)
    Drop-in replacement for src/renderer/src/index.css.
    See README.md for the 4-step integration guide. */
-
-/* Webfonts: humanist grotesque UI face + technical mono. */
-@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* ============================================================
    DEFAULT THEME — Graphite·Violet

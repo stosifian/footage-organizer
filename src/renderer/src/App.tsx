@@ -6,6 +6,7 @@ import { filterClips, activeFilterCount, defaultFilters, type ClipFilters } from
 import { isProviderConfigured, notConfiguredHint, type AIStatus } from './utils/ai-status'
 import { FilterPanel } from './components/FilterPanel'
 import { AIStatusPill } from './components/AIStatusPill'
+import { ThemeSwitcher } from './components/ThemeSwitcher'
 import { AISetupBanner } from './components/AISetupBanner'
 import { VideoPreviewModal } from './components/VideoPreviewModal'
 import type { ClipData } from './types/clip'
@@ -353,6 +354,8 @@ export default function App() {
               </div>
             </>
           )}
+
+          <ThemeSwitcher />
 
           <AIStatusPill status={aiStatus.status} onClick={() => setSettingsOpen(true)} />
 
