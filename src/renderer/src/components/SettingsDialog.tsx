@@ -99,12 +99,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     onClick={() => updateSettings({ aiProvider: p })}
                     className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors text-left ${
                       settings.aiProvider === p
-                        ? 'bg-blue-600 border-blue-500 text-white'
+                        ? 'bg-accent border-accent text-accent-on'
                         : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
                     }`}
                   >
                     <div>{p === 'ollama' ? 'Ollama (Local)' : 'Google Gemini'}</div>
-                    <div className={`text-[10px] font-normal mt-0.5 ${settings.aiProvider === p ? 'text-blue-100' : 'text-[#777]'}`}>
+                    <div className={`text-[10px] font-normal mt-0.5 ${settings.aiProvider === p ? 'text-white/75' : 'text-[#777]'}`}>
                       {PROVIDER_SUBTITLE[p]}
                     </div>
                   </button>
@@ -117,7 +117,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <div className="text-xs text-[#888] bg-[#202020] border border-[#333] rounded-lg p-3 leading-relaxed">
                   <div className="text-[#aaa] font-medium mb-1">Local setup</div>
                   <ol className="list-decimal list-inside space-y-0.5">
-                    <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">ollama.com</a></li>
+                    <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-accent hover:underline">ollama.com</a></li>
                     <li>Pull the model: <code className="text-[#ccc]">ollama pull {settings.ollama.model || 'gemma3'}</code></li>
                     <li>Make sure it's running at the URL below</li>
                   </ol>
@@ -149,7 +149,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 {testResult?.reason === 'model-missing' && !pulling && (
                   <button
                     onClick={handleDownloadModel}
-                    className="flex items-center gap-2 px-3 py-2 w-full justify-center bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 w-full justify-center bg-accent hover:bg-accent-hover rounded-lg text-sm font-medium transition-colors"
                   >
                     <Download size={14} />
                     Download model ({settings.ollama.model || 'gemma3'})
@@ -163,7 +163,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <span>{pullPercent}%</span>
                     </div>
                     <div className="h-1.5 bg-[#252525] rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-600 transition-all" style={{ width: `${pullPercent}%` }} />
+                      <div className="h-full bg-accent transition-all" style={{ width: `${pullPercent}%` }} />
                     </div>
                     <button
                       onClick={handleCancelPull}
@@ -190,7 +190,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       href="https://aistudio.google.com/apikey"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1 text-xs text-blue-400 hover:underline"
+                      className="flex items-center gap-1 text-xs text-accent hover:underline"
                     >
                       Get an API key <ExternalLink size={11} />
                     </a>

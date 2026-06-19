@@ -29,7 +29,7 @@ export function ProgressBar({ scanProgress, aiProgress }: Props) {
       <div className="flex items-center gap-3">
         <div className="flex-1 bg-[#252525] rounded-full h-2 overflow-hidden">
           <div
-            className="h-full bg-blue-500 rounded-full transition-all duration-300"
+            className="h-full bg-accent rounded-full transition-all duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>

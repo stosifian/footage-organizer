@@ -85,8 +85,8 @@ export function ClipTable({ clips, directory, globalFilter, onPreview, hasActive
                         <div
                           onMouseDown={header.getResizeHandler()}
                           onTouchStart={header.getResizeHandler()}
-                          className={`w-1 h-full cursor-col-resize select-none touch-none absolute right-0 top-0 bottom-0 hover:bg-blue-500 ${
-                            header.column.getIsResizing() ? 'bg-blue-500' : 'bg-transparent'
+                          className={`w-1 h-full cursor-col-resize select-none touch-none absolute right-0 top-0 bottom-0 hover:bg-accent ${
+                            header.column.getIsResizing() ? 'bg-accent' : 'bg-transparent'
                           }`}
                         />
                       )}

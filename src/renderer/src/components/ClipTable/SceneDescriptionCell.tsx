@@ -73,7 +73,7 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           rows={3}
-          className="w-full bg-[#252525] border border-blue-500 rounded px-2 py-1 text-xs text-[#e5e5e5] outline-none resize-y leading-relaxed"
+          className="w-full bg-[#252525] border border-accent rounded px-2 py-1 text-xs text-[#e5e5e5] outline-none resize-y leading-relaxed"
         />
         <span className="text-[10px] text-[#666]">Cmd+Enter to save, Esc to cancel</span>
       </div>

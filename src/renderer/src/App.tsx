@@ -217,8 +217,8 @@ export default function App() {
     >
       {/* Drag-over overlay */}
       {isDragOver && (
-        <div className="absolute inset-0 z-50 bg-blue-500/10 border-2 border-blue-500 border-dashed flex items-center justify-center pointer-events-none">
-          <div className="flex flex-col items-center gap-3 text-blue-400">
+        <div className="absolute inset-0 z-50 bg-accent/10 border-2 border-accent border-dashed flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center gap-3 text-accent">
             <FolderOpen size={48} />
             <p className="text-lg font-medium">Drop folder to open</p>
           </div>
@@ -265,7 +265,7 @@ export default function App() {
                   onClick={() => setFilterOpen((v) => !v)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors font-medium ${
                     filterCount > 0
-                      ? 'bg-blue-600/20 border-blue-600 text-blue-300'
+                      ? 'bg-accent/20 border-accent text-accent'
                       : 'bg-[#252525] hover:bg-[#333] border-[#333]'
                   }`}
                   title="Filter clips"
@@ -273,7 +273,7 @@ export default function App() {
                   <SlidersHorizontal size={13} />
                   Filter
                   {filterCount > 0 && (
-                    <span className="ml-0.5 px-1.5 rounded-full bg-blue-600 text-white text-[10px] leading-4">
+                    <span className="ml-0.5 px-1.5 rounded-full bg-accent text-accent-on text-[10px] leading-4">
                       {filterCount}
                     </span>
                   )}
@@ -304,7 +304,7 @@ export default function App() {
                   {clipsNeedingTags > 0 && (
                     <button
                       onClick={tagAllDescribed}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-700 hover:bg-violet-800 rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-magic hover:bg-magic-hover rounded-lg transition-colors font-medium"
                     >
                       <Sparkles size={13} />
                       Tag All ({clipsNeedingTags})
@@ -313,7 +313,7 @@ export default function App() {
                   {clipsWithoutDesc > 0 && (
                     <button
                       onClick={generateAllDescriptions}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-accent hover:bg-accent-hover rounded-lg transition-colors font-medium"
                     >
                       <Sparkles size={13} />
                       Generate All ({clipsWithoutDesc})
@@ -418,7 +418,7 @@ export default function App() {
           <p className="text-sm text-[#555] mb-5">AI-powered metadata for your video library</p>
           <button
             onClick={openDirectory}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-sm font-medium transition-colors"
           >
             <FolderOpen size={16} />
             Open Directory

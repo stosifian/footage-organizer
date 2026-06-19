@@ -87,7 +87,7 @@ export function RelinkDialog({ open, missingPath, onClose }: Props) {
                 <button
                   onClick={handlePickDirectory}
                   disabled={scanning}
-                  className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                  className="flex items-center gap-2 px-4 py-2 text-sm bg-accent hover:bg-accent-hover rounded-lg transition-colors disabled:opacity-50 font-medium"
                 >
                   {scanning ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -147,7 +147,7 @@ export function RelinkDialog({ open, missingPath, onClose }: Props) {
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                  className="px-4 py-2 text-sm bg-accent hover:bg-accent-hover rounded-lg transition-colors font-medium"
                 >
                   Confirm Relink
                 </button>
