@@ -152,10 +152,9 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
                     key={value}
                     onClick={() => toggleTag(cat.key, value)}
                     className={`px-2 py-0.5 rounded-full border transition-colors ${
-                      isOn
-                        ? `${cat.bgColor} ${cat.borderColor} ${cat.color}`
-                        : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
+                      isOn ? '' : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
                     }`}
+                    style={isOn ? { color: cat.color, background: cat.bgColor, borderColor: cat.borderColor } : undefined}
                   >
                     {value}
                   </button>

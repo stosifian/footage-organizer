@@ -13,9 +13,10 @@ export function TagChip({ tag, category, onRemove, compact }: Props) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border ${config.bgColor} ${config.borderColor} ${config.color} ${
+      className={`inline-flex items-center gap-1 rounded-full border ${
         compact ? 'px-1.5 py-0 text-[10px]' : 'px-2 py-0.5 text-xs'
       }`}
+      style={{ color: config.color, background: config.bgColor, borderColor: config.borderColor }}
     >
       {tag}
       {onRemove && (

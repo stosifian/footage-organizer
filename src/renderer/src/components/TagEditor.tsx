@@ -77,7 +77,8 @@ export function TagEditor({ clipId, category, selectedTags }: Props) {
               <button
                 key={tag}
                 onClick={() => addTag(clipId, category, tag)}
-                className={`px-2 py-0.5 rounded-full text-xs border ${config.bgColor} ${config.borderColor} ${config.color} hover:opacity-80 transition-opacity`}
+                className="px-2 py-0.5 rounded-full text-xs border hover:opacity-80 transition-opacity"
+                style={{ color: config.color, background: config.bgColor, borderColor: config.borderColor }}
               >
                 {tag}
               </button>
