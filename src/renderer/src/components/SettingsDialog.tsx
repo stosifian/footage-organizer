@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Settings, X, Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
+import { Settings, X, Loader2, CheckCircle, XCircle, ExternalLink, Download } from 'lucide-react'
 import { useSettingsStore } from '../stores/useSettingsStore'
 import type { AIProviderType } from '../types/settings'
 
@@ -9,10 +9,24 @@ interface SettingsDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
+interface TestResult {
+  success: boolean
+  message: string
+  reason?: 'unreachable' | 'model-missing'
+}
+
+const PROVIDER_SUBTITLE: Record<AIProviderType, string> = {
+  ollama: 'Local · free · requires install',
+  gemini: 'No install · needs API key'
+}
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { settings, updateSettings } = useSettingsStore()
   const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [testResult, setTestResult] = useState<TestResult | null>(null)
+  const [pulling, setPulling] = useState(false)
+  const [pullStatus, setPullStatus] = useState('')
+  const [pullPercent, setPullPercent] = useState(0)
 
   const handleTestConnection = useCallback(async () => {
     setTesting(true)
@@ -27,10 +41,33 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     }
   }, [])
 
-  // Auto-test the connection whenever the dialog is opened.
+  // Auto-test the connection when the dialog opens, and again whenever the
+  // selected provider changes while open (so the reason-based CTAs stay current).
   useEffect(() => {
     if (open) handleTestConnection()
-  }, [open, handleTestConnection])
+  }, [open, settings.aiProvider, handleTestConnection])
+
+  const handleDownloadModel = async () => {
+    setPulling(true)
+    setPullStatus('Starting…')
+    setPullPercent(0)
+    const unsub = window.api.onOllamaPullProgress((p) => {
+      setPullStatus(p.status)
+      setPullPercent(p.percent)
+    })
+    try {
+      await window.api.pullOllamaModel()
+      await handleTestConnection() // flips to ready once the model is present
+    } finally {
+      unsub()
+      setPulling(false)
+    }
+  }
+
+  const handleCancelPull = () => {
+    window.api.cancelOllamaPull()
+    setPulling(false)
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -60,13 +97,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <button
                     key={p}
                     onClick={() => updateSettings({ aiProvider: p })}
-                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors text-left ${
                       settings.aiProvider === p
                         ? 'bg-blue-600 border-blue-500 text-white'
                         : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
                     }`}
                   >
-                    {p === 'ollama' ? 'Ollama (Local)' : 'Google Gemini'}
+                    <div>{p === 'ollama' ? 'Ollama (Local)' : 'Google Gemini'}</div>
+                    <div className={`text-[10px] font-normal mt-0.5 ${settings.aiProvider === p ? 'text-blue-100' : 'text-[#777]'}`}>
+                      {PROVIDER_SUBTITLE[p]}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -104,6 +144,42 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     className="w-full bg-[#252525] border border-[#333] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] outline-none focus:border-[#555]"
                   />
                 </div>
+
+                {/* Server running but model not downloaded → one-click pull */}
+                {testResult?.reason === 'model-missing' && !pulling && (
+                  <button
+                    onClick={handleDownloadModel}
+                    className="flex items-center gap-2 px-3 py-2 w-full justify-center bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Download size={14} />
+                    Download model ({settings.ollama.model || 'gemma3'})
+                  </button>
+                )}
+
+                {pulling && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs text-[#999]">
+                      <span className="truncate">{pullStatus || 'Downloading…'}</span>
+                      <span>{pullPercent}%</span>
+                    </div>
+                    <div className="h-1.5 bg-[#252525] rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-600 transition-all" style={{ width: `${pullPercent}%` }} />
+                    </div>
+                    <button
+                      onClick={handleCancelPull}
+                      className="text-xs text-[#999] hover:text-[#e5e5e5] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                {/* Ollama not reachable → nudge toward the no-install option */}
+                {testResult?.reason === 'unreachable' && (
+                  <div className="text-xs text-[#888] bg-[#202020] border border-[#333] rounded-lg p-2.5">
+                    Don’t want to install Ollama? Switch to Google Gemini above — it needs no install, just an API key.
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3">

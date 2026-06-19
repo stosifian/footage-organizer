@@ -9,7 +9,10 @@ export interface ElectronAPI {
   saveSettings: (settings: unknown) => Promise<void>
   generateDescription: (filePath: string, duration: number) => Promise<string>
   generateDescriptionsBatch: (clips: { filePath: string; duration: number; id: string }[]) => Promise<void>
-  testAIConnection: () => Promise<{ success: boolean; message: string }>
+  testAIConnection: () => Promise<{ success: boolean; message: string; reason?: 'unreachable' | 'model-missing' }>
+  pullOllamaModel: () => Promise<{ success: boolean; message?: string }>
+  cancelOllamaPull: () => Promise<void>
+  onOllamaPullProgress: (callback: (progress: { status: string; percent: number }) => void) => () => void
   onScanProgress: (callback: (progress: unknown) => void) => () => void
   onAIProgress: (callback: (progress: unknown) => void) => () => void
   onAIResult: (callback: (result: unknown) => void) => () => void

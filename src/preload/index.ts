@@ -31,6 +31,15 @@ const api = {
 
   testAIConnection: () => ipcRenderer.invoke('test-ai-connection'),
 
+  pullOllamaModel: () => ipcRenderer.invoke('pull-ollama-model'),
+  cancelOllamaPull: () => ipcRenderer.invoke('cancel-ollama-pull'),
+
+  onOllamaPullProgress: (callback: (progress: unknown) => void) => {
+    const handler = (_event: unknown, progress: unknown) => callback(progress)
+    ipcRenderer.on('ollama-pull-progress', handler as (...args: unknown[]) => void)
+    return () => ipcRenderer.removeListener('ollama-pull-progress', handler as (...args: unknown[]) => void)
+  },
+
   loadAllProjects: () => ipcRenderer.invoke('load-all-projects'),
 
   cancelScan: () => ipcRenderer.invoke('cancel-scan'),
