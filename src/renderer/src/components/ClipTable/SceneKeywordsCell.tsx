@@ -39,12 +39,14 @@ export function SceneKeywordsCell({ clipId, keywords }: Props) {
       {keywords.map((kw) => (
         <span
           key={kw}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded-full text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-400 group/kw"
+          className="inline-flex items-center justify-center gap-0.5 px-1.5 py-0 rounded-full text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-400 group/kw"
         >
-          {kw}
+          {/* Invisible mirror of the × so the keyword stays centered and doesn't shift on hover */}
+          <X size={9} aria-hidden className="shrink-0 opacity-0 pointer-events-none" />
+          <span>{kw}</span>
           <button
             onClick={() => handleRemove(kw)}
-            className="opacity-0 group-hover/kw:opacity-100 transition-opacity hover:text-emerald-200"
+            className="shrink-0 opacity-0 group-hover/kw:opacity-100 transition-opacity hover:text-emerald-200"
           >
             <X size={9} />
           </button>
