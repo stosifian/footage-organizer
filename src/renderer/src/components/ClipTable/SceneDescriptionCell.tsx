@@ -57,7 +57,7 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
 
   if (missing) {
     return description ? (
-      <p className="text-xs text-[#999] leading-relaxed whitespace-pre-wrap break-words italic">
+      <p className="text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap break-words italic">
         {description}
       </p>
     ) : null
@@ -73,9 +73,9 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           rows={3}
-          className="w-full bg-[#252525] border border-blue-500 rounded px-2 py-1 text-xs text-[#e5e5e5] outline-none resize-y leading-relaxed"
+          className="w-full bg-[var(--bg-elevated)] border border-accent rounded px-2 py-1 text-xs text-[var(--text-primary)] outline-none resize-y leading-relaxed"
         />
-        <span className="text-[10px] text-[#666]">Cmd+Enter to save, Esc to cancel</span>
+        <span className="text-[10px] text-[var(--text-label)]">Cmd+Enter to save, Esc to cancel</span>
       </div>
     )
   }
@@ -91,7 +91,7 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
         </p>
         <button
           onClick={handleStartEdit}
-          className="absolute top-0 right-0 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#666] hover:text-[#999]"
+          className="absolute top-0 right-0 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--text-label)] hover:text-[var(--text-secondary)]"
         >
           <Pencil size={10} />
         </button>
@@ -104,7 +104,7 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
       <button
         onClick={handleGenerate}
         disabled={generating}
-        className="flex items-center gap-1 px-2 py-1 text-xs bg-[#252525] hover:bg-[#333] border border-[#333] rounded transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 px-2 py-1 text-xs bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border border-[var(--border-default)] rounded transition-colors disabled:opacity-50"
       >
         {generating ? (
           <Loader2 size={12} className="animate-spin" />
@@ -115,7 +115,7 @@ export function SceneDescriptionCell({ clipId, description, missing }: Props) {
       </button>
       <button
         onClick={handleStartEdit}
-        className="flex items-center gap-1 px-2 py-1 text-xs bg-[#252525] hover:bg-[#333] border border-[#333] rounded transition-colors"
+        className="flex items-center gap-1 px-2 py-1 text-xs bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border border-[var(--border-default)] rounded transition-colors"
       >
         <Pencil size={12} />
         Write

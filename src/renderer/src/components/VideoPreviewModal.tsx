@@ -59,14 +59,14 @@ export function VideoPreviewModal({ clip, onClose }: Props) {
       />
 
       {/* Panel */}
-      <div className="relative z-10 flex flex-col w-[82vw] max-h-[88vh] bg-[#111] rounded-xl overflow-hidden shadow-2xl">
+      <div className="relative z-10 flex flex-col w-[82vw] max-h-[88vh] bg-[#111] rounded-[var(--radius-lg)] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-[#1a1a1a] border-b border-[#333] shrink-0">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--bg-surface)] border-b border-[var(--border-default)] shrink-0">
           <span className="text-sm text-[#ccc] truncate max-w-[90%]">{clip.fileName}</span>
           <button
             onClick={onClose}
             aria-label="Close preview"
-            className="p-1 rounded hover:bg-[#333] transition-colors text-[#999] hover:text-white shrink-0"
+            className="p-1 rounded hover:bg-[var(--border-default)] transition-colors text-[var(--text-secondary)] hover:text-white shrink-0"
           >
             <X size={16} />
           </button>
@@ -75,11 +75,11 @@ export function VideoPreviewModal({ clip, onClose }: Props) {
         {/* Body */}
         {videoError ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-black py-12">
-            <p className="text-sm text-[#666]">This format cannot be played inline.</p>
+            <p className="text-sm text-[var(--text-label)]">This format cannot be played inline.</p>
             <button
               onClick={() => window.api.openInPlayer(clip.filePath)}
               aria-label="Open in system player"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#252525] hover:bg-[#333] border border-[#444] text-sm text-[#ccc] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-lg)] bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border border-[var(--border-strong)] text-sm text-[#ccc] transition-colors"
             >
               <ExternalLink size={14} />
               Open in system player

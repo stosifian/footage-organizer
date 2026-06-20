@@ -1,11 +1,28 @@
-export type TagCategory = 'visualTexture' | 'energy' | 'mood' | 'lightQuality' | 'location'
+/* Tag categories + presets.
+ *
+ * The three color fields hold CSS-variable values from the re-harmonized tag
+ * family in index.css (not Tailwind class strings), so they auto-retint per
+ * theme. Apply them with inline `style`, not `className`.
+ *
+ * Note: the design bundle also shipped a sixth `keyword` (emerald) category for
+ * free-form scene keywords. This app has no `keyword` tag field on ClipData
+ * (scene keywords are rendered separately by SceneKeywordsCell), so it's omitted
+ * to keep TagCategory aligned with the data model.
+ */
+
+export type TagCategory =
+  | 'visualTexture'
+  | 'energy'
+  | 'mood'
+  | 'lightQuality'
+  | 'location'
 
 export interface TagCategoryConfig {
   key: TagCategory
   label: string
-  color: string
-  bgColor: string
-  borderColor: string
+  color: string        // CSS value → use as style={{ color }}
+  bgColor: string      // CSS value → use as style={{ background: bgColor }}
+  borderColor: string  // CSS value → use as style={{ borderColor }}
   presets: string[]
 }
 
@@ -13,9 +30,9 @@ export const TAG_CATEGORIES: TagCategoryConfig[] = [
   {
     key: 'visualTexture',
     label: 'Visual Texture',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-950',
-    borderColor: 'border-blue-800',
+    color: 'var(--tag-texture-text)',
+    bgColor: 'var(--tag-texture-bg)',
+    borderColor: 'var(--tag-texture-border)',
     presets: [
       'Smooth', 'Grainy', 'Sharp', 'Filmic', 'Soft Focus', 'Hazy',
       'Saturated', 'Desaturated', 'High Contrast', 'Low Contrast',
@@ -25,9 +42,9 @@ export const TAG_CATEGORIES: TagCategoryConfig[] = [
   {
     key: 'energy',
     label: 'Energy',
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-950',
-    borderColor: 'border-orange-800',
+    color: 'var(--tag-energy-text)',
+    bgColor: 'var(--tag-energy-bg)',
+    borderColor: 'var(--tag-energy-border)',
     presets: [
       'Static', 'Slow', 'Calm', 'Dynamic', 'Fast', 'Frenetic',
       'Building', 'Declining', 'Pulsing', 'Steady', 'Explosive',
@@ -37,9 +54,9 @@ export const TAG_CATEGORIES: TagCategoryConfig[] = [
   {
     key: 'mood',
     label: 'Mood',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-950',
-    borderColor: 'border-purple-800',
+    color: 'var(--tag-mood-text)',
+    bgColor: 'var(--tag-mood-bg)',
+    borderColor: 'var(--tag-mood-border)',
     presets: [
       'Peaceful', 'Melancholic', 'Tense', 'Joyful', 'Mysterious',
       'Nostalgic', 'Dramatic', 'Serene', 'Anxious', 'Hopeful',
@@ -49,9 +66,9 @@ export const TAG_CATEGORIES: TagCategoryConfig[] = [
   {
     key: 'lightQuality',
     label: 'Light Quality',
-    color: 'text-amber-400',
-    bgColor: 'bg-amber-950',
-    borderColor: 'border-amber-800',
+    color: 'var(--tag-light-text)',
+    bgColor: 'var(--tag-light-bg)',
+    borderColor: 'var(--tag-light-border)',
     presets: [
       'Golden Hour', 'Blue Hour', 'Backlit', 'Overcast', 'Diffused',
       'Neon', 'Harsh', 'Soft', 'Dappled', 'Silhouette',
@@ -61,9 +78,9 @@ export const TAG_CATEGORIES: TagCategoryConfig[] = [
   {
     key: 'location',
     label: 'Location',
-    color: 'text-teal-400',
-    bgColor: 'bg-teal-950',
-    borderColor: 'border-teal-800',
+    color: 'var(--tag-location-text)',
+    bgColor: 'var(--tag-location-bg)',
+    borderColor: 'var(--tag-location-border)',
     presets: [
       'London', 'Sydney', 'Montreal', 'Copenhagen'
     ]

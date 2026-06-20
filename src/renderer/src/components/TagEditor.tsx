@@ -46,7 +46,7 @@ export function TagEditor({ clipId, category, selectedTags }: Props) {
                 onRemove={() => removeTag(clipId, category, tag)}
               />
             ))}
-            <span className="inline-flex items-center text-[#666] hover:text-[#999] transition-colors">
+            <span className="inline-flex items-center text-[var(--text-label)] hover:text-[var(--text-secondary)] transition-colors">
               <Plus size={12} />
             </span>
           </div>
@@ -55,20 +55,20 @@ export function TagEditor({ clipId, category, selectedTags }: Props) {
 
       <Popover.Portal>
         <Popover.Content
-          className="w-64 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-2xl p-3 z-50"
+          className="w-64 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-2xl p-3 z-50"
           sideOffset={5}
           align="start"
         >
-          <div className="text-xs font-medium text-[#999] mb-2">{config.label}</div>
+          <div className="text-xs font-medium text-[var(--text-secondary)] mb-2">{config.label}</div>
 
           <div className="relative mb-2">
-            <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-[#666]" />
+            <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-label)]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter tags..."
-              className="w-full bg-[#252525] border border-[#333] rounded px-2 py-1 pl-6 text-xs text-[#e5e5e5] placeholder-[#666] outline-none focus:border-[#555]"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 pl-6 text-xs text-[var(--text-primary)] placeholder-[var(--text-label)] outline-none focus:border-[var(--border-focus)]"
             />
           </div>
 
@@ -77,34 +77,35 @@ export function TagEditor({ clipId, category, selectedTags }: Props) {
               <button
                 key={tag}
                 onClick={() => addTag(clipId, category, tag)}
-                className={`px-2 py-0.5 rounded-full text-xs border ${config.bgColor} ${config.borderColor} ${config.color} hover:opacity-80 transition-opacity`}
+                className="px-2 py-0.5 rounded-full text-xs border hover:opacity-80 transition-opacity"
+                style={{ color: config.color, background: config.bgColor, borderColor: config.borderColor }}
               >
                 {tag}
               </button>
             ))}
             {filtered.length === 0 && (
-              <span className="text-xs text-[#666]">No matching tags</span>
+              <span className="text-xs text-[var(--text-label)]">No matching tags</span>
             )}
           </div>
 
-          <div className="flex gap-1 border-t border-[#333] pt-2">
+          <div className="flex gap-1 border-t border-[var(--border-default)] pt-2">
             <input
               type="text"
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddCustom()}
               placeholder="Create custom tag..."
-              className="flex-1 bg-[#252525] border border-[#333] rounded px-2 py-1 text-xs text-[#e5e5e5] placeholder-[#666] outline-none focus:border-[#555]"
+              className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 text-xs text-[var(--text-primary)] placeholder-[var(--text-label)] outline-none focus:border-[var(--border-focus)]"
             />
             <button
               onClick={handleAddCustom}
-              className="px-2 py-1 text-xs bg-[#333] hover:bg-[#444] rounded transition-colors"
+              className="px-2 py-1 text-xs bg-[var(--border-default)] hover:bg-[var(--border-strong)] rounded transition-colors"
             >
               Add
             </button>
           </div>
 
-          <Popover.Arrow className="fill-[#333]" />
+          <Popover.Arrow className="fill-[var(--border-default)]" />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

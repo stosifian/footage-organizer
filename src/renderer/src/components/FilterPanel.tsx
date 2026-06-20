@@ -35,10 +35,10 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
   }
 
   return (
-    <div className="absolute right-0 mt-1 z-50 w-[320px] max-h-[70vh] overflow-y-auto bg-[#1a1a1a] border border-[#333] rounded-lg shadow-xl p-3 text-xs text-[#e5e5e5]">
+    <div className="absolute right-0 mt-1 z-50 w-[320px] max-h-[70vh] overflow-y-auto bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-xl p-3 text-xs text-[var(--text-primary)]">
       {/* Quick toggles */}
       <div className="mb-3">
-        <div className="text-[#888] font-medium mb-1.5">Quick</div>
+        <div className="text-[var(--text-secondary)] font-medium mb-1.5">Quick</div>
         <div className="space-y-1">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -73,7 +73,7 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
       {/* Codec */}
       {codecs.length > 0 && (
         <div className="mb-3">
-          <div className="text-[#888] font-medium mb-1.5">Codec</div>
+          <div className="text-[var(--text-secondary)] font-medium mb-1.5">Codec</div>
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {codecs.map((codec) => (
               <label key={codec} className="flex items-center gap-1.5 cursor-pointer">
@@ -92,7 +92,7 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
 
       {/* Duration */}
       <div className="mb-3">
-        <div className="text-[#888] font-medium mb-1.5">Duration (sec)</div>
+        <div className="text-[var(--text-secondary)] font-medium mb-1.5">Duration (sec)</div>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -100,38 +100,38 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
             placeholder="min"
             value={filters.durationMin ?? ''}
             onChange={(e) => onChange({ ...filters, durationMin: parseNum(e.target.value) })}
-            className="w-20 bg-[#252525] border border-[#333] rounded px-2 py-1 outline-none focus:border-[#555]"
+            className="w-20 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 outline-none focus:border-[var(--border-focus)]"
           />
-          <span className="text-[#666]">–</span>
+          <span className="text-[var(--text-label)]">–</span>
           <input
             type="number"
             aria-label="Duration max"
             placeholder="max"
             value={filters.durationMax ?? ''}
             onChange={(e) => onChange({ ...filters, durationMax: parseNum(e.target.value) })}
-            className="w-20 bg-[#252525] border border-[#333] rounded px-2 py-1 outline-none focus:border-[#555]"
+            className="w-20 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 outline-none focus:border-[var(--border-focus)]"
           />
         </div>
       </div>
 
       {/* Date shot */}
       <div className="mb-3">
-        <div className="text-[#888] font-medium mb-1.5">Date shot</div>
+        <div className="text-[var(--text-secondary)] font-medium mb-1.5">Date shot</div>
         <div className="flex items-center gap-2">
           <input
             type="date"
             aria-label="Date from"
             value={filters.dateFrom ?? ''}
             onChange={(e) => onChange({ ...filters, dateFrom: e.target.value || null })}
-            className="bg-[#252525] border border-[#333] rounded px-2 py-1 outline-none focus:border-[#555]"
+            className="bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 outline-none focus:border-[var(--border-focus)]"
           />
-          <span className="text-[#666]">–</span>
+          <span className="text-[var(--text-label)]">–</span>
           <input
             type="date"
             aria-label="Date to"
             value={filters.dateTo ?? ''}
             onChange={(e) => onChange({ ...filters, dateTo: e.target.value || null })}
-            className="bg-[#252525] border border-[#333] rounded px-2 py-1 outline-none focus:border-[#555]"
+            className="bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded px-2 py-1 outline-none focus:border-[var(--border-focus)]"
           />
         </div>
       </div>
@@ -143,7 +143,7 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
         const selected = filters.tags[cat.key] ?? []
         return (
           <div key={cat.key} className="mb-3">
-            <div className="text-[#888] font-medium mb-1.5">{cat.label}</div>
+            <div className="text-[var(--text-secondary)] font-medium mb-1.5">{cat.label}</div>
             <div className="flex flex-wrap gap-1.5">
               {values.map((value) => {
                 const isOn = selected.includes(value)
@@ -152,10 +152,9 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
                     key={value}
                     onClick={() => toggleTag(cat.key, value)}
                     className={`px-2 py-0.5 rounded-full border transition-colors ${
-                      isOn
-                        ? `${cat.bgColor} ${cat.borderColor} ${cat.color}`
-                        : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
+                      isOn ? '' : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-focus)]'
                     }`}
+                    style={isOn ? { color: cat.color, background: cat.bgColor, borderColor: cat.borderColor } : undefined}
                   >
                     {value}
                   </button>
@@ -167,10 +166,10 @@ export function FilterPanel({ clips, filters, onChange, onClear }: Props) {
       })}
 
       {/* Footer */}
-      <div className="flex justify-between items-center pt-2 border-t border-[#333]">
+      <div className="flex justify-between items-center pt-2 border-t border-[var(--border-default)]">
         <button
           onClick={onClear}
-          className="px-2 py-1 text-[#999] hover:text-[#e5e5e5] transition-colors"
+          className="px-2 py-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         >
           Clear all
         </button>

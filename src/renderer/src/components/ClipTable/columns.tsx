@@ -48,7 +48,7 @@ export function createColumns(directory: string, onPreview: (clip: ClipData) => 
               </span>
             )}
             <span
-              className={`text-xs font-medium truncate block ${isMissing ? 'line-through text-[#666]' : ''}`}
+              className={`text-xs font-medium truncate block ${isMissing ? 'line-through text-[var(--text-label)]' : ''}`}
               title={getValue()}
             >
               {getValue()}
@@ -64,7 +64,7 @@ export function createColumns(directory: string, onPreview: (clip: ClipData) => 
       cell: ({ getValue }) => {
         const folder = getValue()
         return (
-          <span className="text-xs text-[#999] truncate block" title={folder || '(root)'}>
+          <span className="text-xs text-[var(--text-secondary)] truncate block" title={folder || '(root)'}>
             {folder || '/'}
           </span>
         )
@@ -81,21 +81,21 @@ export function createColumns(directory: string, onPreview: (clip: ClipData) => 
       header: 'Duration',
       size: 70,
       cell: ({ getValue }) => (
-        <span className="text-xs text-[#999]">{formatDuration(getValue())}</span>
+        <span className="text-xs text-[var(--text-secondary)]">{formatDuration(getValue())}</span>
       )
     }),
 
     col.accessor('resolution', {
       header: 'Resolution',
       size: 80,
-      cell: ({ getValue }) => <span className="text-xs text-[#999]">{getValue()}</span>
+      cell: ({ getValue }) => <span className="text-xs text-[var(--text-secondary)]">{getValue()}</span>
     }),
 
     col.accessor('fileSize', {
       header: 'Size',
       size: 70,
       cell: ({ getValue }) => (
-        <span className="text-xs text-[#999]">{formatFileSize(getValue())}</span>
+        <span className="text-xs text-[var(--text-secondary)]">{formatFileSize(getValue())}</span>
       )
     }),
 

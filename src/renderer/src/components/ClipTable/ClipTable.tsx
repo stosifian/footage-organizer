@@ -51,20 +51,20 @@ export function ClipTable({ clips, directory, globalFilter, onPreview, hasActive
   return (
     <div ref={parentRef} className="flex-1 overflow-auto">
       <table className="border-collapse" style={{ tableLayout: 'fixed', width: table.getTotalSize() }}>
-        <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
+        <thead className="sticky top-0 z-10 bg-[var(--bg-surface)]">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 text-left text-xs font-medium text-[#999] border-b border-[#333] whitespace-nowrap relative"
+                  className="px-3 py-2 text-left text-xs font-medium text-[var(--text-secondary)] border-b border-[var(--border-default)] whitespace-nowrap relative"
                   style={{ width: header.getSize() }}
                 >
                   {header.isPlaceholder ? null : (
                     <div className="flex items-center justify-between">
                       <button
                         className={`flex items-center gap-1 ${
-                          header.column.getCanSort() ? 'cursor-pointer select-none hover:text-[#e5e5e5]' : ''
+                          header.column.getCanSort() ? 'cursor-pointer select-none hover:text-[var(--text-primary)]' : ''
                         }`}
                         onClick={header.column.getToggleSortingHandler()}
                       >
@@ -85,8 +85,8 @@ export function ClipTable({ clips, directory, globalFilter, onPreview, hasActive
                         <div
                           onMouseDown={header.getResizeHandler()}
                           onTouchStart={header.getResizeHandler()}
-                          className={`w-1 h-full cursor-col-resize select-none touch-none absolute right-0 top-0 bottom-0 hover:bg-blue-500 ${
-                            header.column.getIsResizing() ? 'bg-blue-500' : 'bg-transparent'
+                          className={`w-1 h-full cursor-col-resize select-none touch-none absolute right-0 top-0 bottom-0 hover:bg-accent ${
+                            header.column.getIsResizing() ? 'bg-accent' : 'bg-transparent'
                           }`}
                         />
                       )}
@@ -113,7 +113,7 @@ export function ClipTable({ clips, directory, globalFilter, onPreview, hasActive
                 key={row.id}
                 ref={virtualizer.measureElement}
                 data-index={virtualRow.index}
-                className={`border-b border-[#252525] hover:bg-[#1a1a1a] transition-colors ${row.original.missing ? 'opacity-50' : ''}`}
+                className={`border-b border-[var(--bg-elevated)] hover:bg-[var(--bg-surface)] transition-colors ${row.original.missing ? 'opacity-50' : ''}`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
@@ -144,7 +144,7 @@ export function ClipTable({ clips, directory, globalFilter, onPreview, hasActive
       </table>
 
       {rows.length === 0 && (
-        <div className="flex items-center justify-center h-32 text-[#666] text-sm">
+        <div className="flex items-center justify-center h-32 text-[var(--text-label)] text-sm">
           {globalFilter || hasActiveFilters ? 'No clips match your filters.' : 'No video clips found.'}
         </div>
       )}

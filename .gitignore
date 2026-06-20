@@ -18,3 +18,6 @@ npm-debug.log*
 # OS / editor
 .DS_Store
 .vite/
+
+# Design hand-off bundle (reference only, not app code)
+design_handoff_violet_reskin/

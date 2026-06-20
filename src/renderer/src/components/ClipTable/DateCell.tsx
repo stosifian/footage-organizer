@@ -4,7 +4,7 @@ interface Props {
 
 export function DateCell({ dateShot }: Props) {
   if (!dateShot) {
-    return <span className="text-[#666] text-xs">Unknown</span>
+    return <span className="text-[var(--text-label)] text-xs">Unknown</span>
   }
 
   const d = new Date(dateShot)
@@ -13,8 +13,8 @@ export function DateCell({ dateShot }: Props) {
 
   return (
     <div className="text-xs">
-      <div className="text-[#e5e5e5]">{date}</div>
-      <div className="text-[#999]">{time}</div>
+      <div className="text-[var(--text-primary)]">{date}</div>
+      <div className="text-[var(--text-secondary)]">{time}</div>
     </div>
   )
 }
