@@ -26,6 +26,7 @@ export interface ElectronAPI {
   exportClips: (format: 'csv' | 'json', content: string, defaultFileName: string) => Promise<string | null>
   onMenuExportCsv: (callback: () => void) => () => void
   onMenuExportJson: (callback: () => void) => () => void
+  onMenuExportFcpxml: (callback: () => void) => () => void
   onMenuOpenDirectory: (callback: () => void) => () => void
   onMenuRescan: (callback: () => void) => () => void
   onMenuOpenSettings: (callback: () => void) => () => void

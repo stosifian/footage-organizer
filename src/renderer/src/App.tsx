@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Search, Sparkles, Square, Video, FolderOpen, Loader2, Download, SlidersHorizontal, AlertTriangle, X } from 'lucide-react'
 import { extractDroppedFolderPath, readDroppedDirectoryInfo } from './utils/drag'
 import { clipsToCsv, clipsToJson } from './utils/export'
+import { clipsToFcpxml } from './utils/fcpxml'
 import { filterClips, activeFilterCount, defaultFilters, type ClipFilters } from './utils/filter'
 import { isProviderConfigured, notConfiguredHint, type AIStatus } from './utils/ai-status'
 import { FilterPanel } from './components/FilterPanel'
@@ -73,10 +74,15 @@ export default function App() {
 
   // Reads fresh clips/directory from the store so it can be a stable handler
   // (no need to re-subscribe menu listeners when clips change).
-  const exportAs = (format: 'csv' | 'json') => {
+  const exportAs = (format: 'csv' | 'json' | 'fcpxml') => {
     const state = useClipStore.getState()
     if (state.clips.length === 0) return
-    const content = format === 'csv' ? clipsToCsv(state.clips) : clipsToJson(state.clips)
+    const content =
+      format === 'csv'
+        ? clipsToCsv(state.clips)
+        : format === 'fcpxml'
+          ? clipsToFcpxml(state.clips)
+          : clipsToJson(state.clips)
     const base = state.directory
       ? state.directory.split('/').filter(Boolean).pop() || 'footage'
       : 'footage'
@@ -94,12 +100,14 @@ export default function App() {
     const unsubSettings = window.api.onMenuOpenSettings(() => setSettingsOpen(true))
     const unsubExportCsv = window.api.onMenuExportCsv(() => exportAs('csv'))
     const unsubExportJson = window.api.onMenuExportJson(() => exportAs('json'))
+    const unsubExportFcpxml = window.api.onMenuExportFcpxml(() => exportAs('fcpxml'))
     return () => {
       unsubOpen()
       unsubRescan()
       unsubSettings()
       unsubExportCsv()
       unsubExportJson()
+      unsubExportFcpxml()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openDirectory, scanDirectory, directory])
@@ -347,6 +355,12 @@ export default function App() {
                         className="w-full text-left px-3 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
                       >
                         Export as JSON
+                      </button>
+                      <button
+                        onClick={() => exportAs('fcpxml')}
+                        className="w-full text-left px-3 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+                      >
+                        Export as FCPXML
                       </button>
                     </div>
                   </>

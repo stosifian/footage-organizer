@@ -8,6 +8,7 @@ export interface ClipData {
   duration: number
   resolution: string
   codec: string
+  frameRate?: string | null
   fileSize: number
   contentHash: string | null
   thumbnailPath: string | null
