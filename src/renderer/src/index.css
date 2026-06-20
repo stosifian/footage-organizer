@@ -164,24 +164,29 @@ html[data-theme="signal"] {
   --color-magic:#c084fc; --color-magic-hover:#a855f7;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Global element resets live in @layer base so Tailwind's utilities (in the
+   later @layer utilities) win — otherwise this unlayered padding reset would
+   override every padding utility and collapse all spacing. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-body {
-  font-family: var(--font-ui);
-  background: var(--bg-base);
-  color: var(--text-primary);
-  overflow: hidden;
-  height: 100vh;
-}
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+  }
 
-#root {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  #root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /* Scrollbar styling */
