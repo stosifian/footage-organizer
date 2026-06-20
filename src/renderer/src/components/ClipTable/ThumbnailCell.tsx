@@ -32,7 +32,7 @@ export function ThumbnailCell({ clip, directory, onPreview }: Props) {
 
   if (clip.missing) {
     return (
-      <div className="w-[80px] h-[45px] bg-[#252525] rounded flex items-center justify-center">
+      <div className="w-[80px] h-[45px] bg-[var(--bg-elevated)] rounded flex items-center justify-center">
         <FileX size={16} className="text-red-400/60" />
       </div>
     )
@@ -48,8 +48,8 @@ export function ThumbnailCell({ clip, directory, onPreview }: Props) {
           onLoad={() => setLoaded(true)}
         />
       ) : (
-        <div className="w-full h-full bg-[#252525] rounded flex items-center justify-center">
-          <Film size={16} className="text-[#666]" />
+        <div className="w-full h-full bg-[var(--bg-elevated)] rounded flex items-center justify-center">
+          <Film size={16} className="text-[var(--text-label)]" />
         </div>
       )}
 

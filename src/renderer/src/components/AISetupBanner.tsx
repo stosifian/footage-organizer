@@ -13,7 +13,7 @@ export function AISetupBanner({ message, onConfigure, onDismiss }: Props) {
       <span className="flex-1">{message}</span>
       <button
         onClick={onConfigure}
-        className="px-3 py-1 rounded-md bg-amber-600 hover:bg-amber-500 text-white font-medium transition-colors"
+        className="px-3 py-1 rounded-[var(--radius-md)] bg-amber-600 hover:bg-amber-500 text-white font-medium transition-colors"
       >
         Set up AI
       </button>

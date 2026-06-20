@@ -72,39 +72,39 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>
-        <button className="p-2 rounded-lg hover:bg-[#252525] transition-colors" title="Settings">
-          <Settings size={18} className="text-[#999]" />
+        <button className="p-2 rounded-[var(--radius-lg)] hover:bg-[var(--bg-elevated)] transition-colors" title="Settings">
+          <Settings size={18} className="text-[var(--text-secondary)]" />
         </button>
       </Dialog.Trigger>
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] bg-[#1a1a1a] border border-[#333] rounded-xl shadow-2xl p-6 z-50">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-2xl p-6 z-50">
           <div className="flex items-center justify-between mb-6">
             <Dialog.Title className="text-lg font-semibold">Settings</Dialog.Title>
             <Dialog.Close asChild>
-              <button className="p-1 hover:bg-[#252525] rounded">
-                <X size={18} className="text-[#999]" />
+              <button className="p-1 hover:bg-[var(--bg-elevated)] rounded">
+                <X size={18} className="text-[var(--text-secondary)]" />
               </button>
             </Dialog.Close>
           </div>
 
           <div className="space-y-5">
             <div>
-              <label className="text-sm font-medium text-[#999] block mb-2">AI Provider</label>
+              <label className="text-sm font-medium text-[var(--text-secondary)] block mb-2">AI Provider</label>
               <div className="flex gap-2">
                 {(['ollama', 'gemini'] as AIProviderType[]).map((p) => (
                   <button
                     key={p}
                     onClick={() => updateSettings({ aiProvider: p })}
-                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors text-left ${
+                    className={`flex-1 px-4 py-2 rounded-[var(--radius-lg)] text-sm font-medium border transition-colors text-left ${
                       settings.aiProvider === p
                         ? 'bg-accent border-accent text-accent-on'
-                        : 'bg-[#252525] border-[#333] text-[#999] hover:border-[#555]'
+                        : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-focus)]'
                     }`}
                   >
                     <div>{p === 'ollama' ? 'Ollama (Local)' : 'Google Gemini'}</div>
-                    <div className={`text-[10px] font-normal mt-0.5 ${settings.aiProvider === p ? 'text-white/75' : 'text-[#777]'}`}>
+                    <div className={`text-[10px] font-normal mt-0.5 ${settings.aiProvider === p ? 'text-white/75' : 'text-[var(--text-label)]'}`}>
                       {PROVIDER_SUBTITLE[p]}
                     </div>
                   </button>
@@ -114,7 +114,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
             {settings.aiProvider === 'ollama' ? (
               <div className="space-y-3">
-                <div className="text-xs text-[#888] bg-[#202020] border border-[#333] rounded-lg p-3 leading-relaxed">
+                <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-inset)] border border-[var(--border-default)] rounded-[var(--radius-lg)] p-3 leading-relaxed">
                   <div className="text-[#aaa] font-medium mb-1">Local setup</div>
                   <ol className="list-decimal list-inside space-y-0.5">
                     <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-accent hover:underline">ollama.com</a></li>
@@ -123,25 +123,25 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </ol>
                 </div>
                 <div>
-                  <label className="text-xs text-[#999] block mb-1">Base URL</label>
+                  <label className="text-xs text-[var(--text-secondary)] block mb-1">Base URL</label>
                   <input
                     type="text"
                     value={settings.ollama.baseUrl}
                     onChange={(e) =>
                       updateSettings({ ollama: { ...settings.ollama, baseUrl: e.target.value } })
                     }
-                    className="w-full bg-[#252525] border border-[#333] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] outline-none focus:border-[#555]"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-lg)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-focus)]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#999] block mb-1">Model</label>
+                  <label className="text-xs text-[var(--text-secondary)] block mb-1">Model</label>
                   <input
                     type="text"
                     value={settings.ollama.model}
                     onChange={(e) =>
                       updateSettings({ ollama: { ...settings.ollama, model: e.target.value } })
                     }
-                    className="w-full bg-[#252525] border border-[#333] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] outline-none focus:border-[#555]"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-lg)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-focus)]"
                   />
                 </div>
 
@@ -149,7 +149,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 {testResult?.reason === 'model-missing' && !pulling && (
                   <button
                     onClick={handleDownloadModel}
-                    className="flex items-center gap-2 px-3 py-2 w-full justify-center bg-accent hover:bg-accent-hover rounded-lg text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 w-full justify-center bg-accent hover:bg-accent-hover rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
                   >
                     <Download size={14} />
                     Download model ({settings.ollama.model || 'gemma3'})
@@ -158,16 +158,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                 {pulling && (
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs text-[#999]">
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
                       <span className="truncate">{pullStatus || 'Downloading…'}</span>
                       <span>{pullPercent}%</span>
                     </div>
-                    <div className="h-1.5 bg-[#252525] rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[var(--bg-elevated)] rounded-full overflow-hidden">
                       <div className="h-full bg-accent transition-all" style={{ width: `${pullPercent}%` }} />
                     </div>
                     <button
                       onClick={handleCancelPull}
-                      className="text-xs text-[#999] hover:text-[#e5e5e5] transition-colors"
+                      className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     >
                       Cancel
                     </button>
@@ -176,7 +176,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                 {/* Ollama not reachable → nudge toward the no-install option */}
                 {testResult?.reason === 'unreachable' && (
-                  <div className="text-xs text-[#888] bg-[#202020] border border-[#333] rounded-lg p-2.5">
+                  <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-inset)] border border-[var(--border-default)] rounded-[var(--radius-lg)] p-2.5">
                     Don’t want to install Ollama? Switch to Google Gemini above — it needs no install, just an API key.
                   </div>
                 )}
@@ -185,7 +185,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs text-[#999]">API Key</label>
+                    <label className="text-xs text-[var(--text-secondary)]">API Key</label>
                     <a
                       href="https://aistudio.google.com/apikey"
                       target="_blank"
@@ -202,18 +202,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       updateSettings({ gemini: { ...settings.gemini, apiKey: e.target.value } })
                     }
                     placeholder="Enter your Gemini API key"
-                    className="w-full bg-[#252525] border border-[#333] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] placeholder-[#666] outline-none focus:border-[#555]"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-lg)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-label)] outline-none focus:border-[var(--border-focus)]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#999] block mb-1">Model</label>
+                  <label className="text-xs text-[var(--text-secondary)] block mb-1">Model</label>
                   <input
                     type="text"
                     value={settings.gemini.model}
                     onChange={(e) =>
                       updateSettings({ gemini: { ...settings.gemini, model: e.target.value } })
                     }
-                    className="w-full bg-[#252525] border border-[#333] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] outline-none focus:border-[#555]"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-lg)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-focus)]"
                   />
                 </div>
               </div>
@@ -223,7 +223,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <button
                 onClick={handleTestConnection}
                 disabled={testing}
-                className="flex items-center gap-2 px-4 py-2 bg-[#252525] hover:bg-[#333] border border-[#333] rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border border-[var(--border-default)] rounded-[var(--radius-lg)] text-sm transition-colors disabled:opacity-50"
               >
                 {testing ? <Loader2 size={14} className="animate-spin" /> : null}
                 Test Connection

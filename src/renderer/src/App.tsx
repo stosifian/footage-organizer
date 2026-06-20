@@ -214,7 +214,7 @@ export default function App() {
 
   return (
     <div
-      className="flex flex-col h-screen bg-[#0f0f0f] relative overflow-hidden"
+      className="flex flex-col h-screen bg-[var(--bg-base)] relative overflow-hidden"
     >
       {/* Drag-over overlay */}
       {isDragOver && (
@@ -230,12 +230,12 @@ export default function App() {
       <div className="h-[38px] shrink-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
 
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-[#333] bg-[#0f0f0f]" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+      <header className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-default)] bg-[var(--bg-base)]" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
         <div className="flex items-center gap-4">
           <DirectoryPicker />
 
           {clips.length > 0 && (
-            <div className="flex items-center gap-2 text-xs text-[#999]">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
               <Video size={14} />
               {filteredClips.length === clips.length
                 ? `${clips.length} clips`
@@ -249,25 +249,25 @@ export default function App() {
             <>
               <div className="relative">
                 <Search
-                  size={14}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#666]"
+                  size={15}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-label)] pointer-events-none"
                 />
                 <input
                   type="text"
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
                   placeholder="Search clips..."
-                  className="bg-[#252525] border border-[#333] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#e5e5e5] placeholder-[#666] outline-none focus:border-[#555] w-[200px]"
+                  className="bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-full pl-10 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-label)] outline-none focus:border-[var(--border-focus)] w-[260px]"
                 />
               </div>
 
               <div className="relative">
                 <button
                   onClick={() => setFilterOpen((v) => !v)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors font-medium ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 text-sm rounded-[var(--radius-lg)] border transition-colors font-medium ${
                     filterCount > 0
                       ? 'bg-accent/20 border-accent text-accent'
-                      : 'bg-[#252525] hover:bg-[#333] border-[#333]'
+                      : 'bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border-[var(--border-default)]'
                   }`}
                   title="Filter clips"
                 >
@@ -295,7 +295,7 @@ export default function App() {
               {isGenerating ? (
                 <button
                   onClick={stopGeneration}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-700 hover:bg-red-800 rounded-lg transition-colors font-medium"
+                  className="flex items-center gap-1.5 px-3.5 py-2 text-sm bg-red-700 hover:bg-red-800 rounded-[var(--radius-lg)] transition-colors font-medium"
                 >
                   <Square size={12} />
                   Stop
@@ -305,7 +305,7 @@ export default function App() {
                   {clipsNeedingTags > 0 && (
                     <button
                       onClick={tagAllDescribed}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-magic hover:bg-magic-hover rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-1.5 px-3.5 py-2 text-sm bg-magic hover:bg-magic-hover rounded-[var(--radius-lg)] transition-colors font-medium"
                     >
                       <Sparkles size={13} />
                       Tag All ({clipsNeedingTags})
@@ -314,7 +314,7 @@ export default function App() {
                   {clipsWithoutDesc > 0 && (
                     <button
                       onClick={generateAllDescriptions}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-accent hover:bg-accent-hover rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-1.5 px-3.5 py-2 text-sm bg-accent hover:bg-accent-hover rounded-[var(--radius-lg)] transition-colors font-medium"
                     >
                       <Sparkles size={13} />
                       Generate All ({clipsWithoutDesc})
@@ -326,7 +326,7 @@ export default function App() {
               <div className="relative">
                 <button
                   onClick={() => setExportMenuOpen((v) => !v)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#252525] hover:bg-[#333] border border-[#333] rounded-lg transition-colors font-medium"
+                  className="flex items-center gap-1.5 px-3.5 py-2 text-sm bg-[var(--bg-elevated)] hover:bg-[var(--border-default)] border border-[var(--border-default)] rounded-[var(--radius-lg)] transition-colors font-medium"
                   title="Export metadata"
                 >
                   <Download size={13} />
@@ -335,16 +335,16 @@ export default function App() {
                 {exportMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-                    <div className="absolute right-0 mt-1 z-50 w-40 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-xl py-1">
+                    <div className="absolute right-0 mt-1 z-50 w-40 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-xl py-1">
                       <button
                         onClick={() => exportAs('csv')}
-                        className="w-full text-left px-3 py-1.5 text-xs text-[#e5e5e5] hover:bg-[#252525] transition-colors"
+                        className="w-full text-left px-3 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
                       >
                         Export as CSV
                       </button>
                       <button
                         onClick={() => exportAs('json')}
-                        className="w-full text-left px-3 py-1.5 text-xs text-[#e5e5e5] hover:bg-[#252525] transition-colors"
+                        className="w-full text-left px-3 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
                       >
                         Export as JSON
                       </button>
@@ -387,7 +387,7 @@ export default function App() {
           </span>
           <button
             onClick={() => setSettingsOpen(true)}
-            className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition-colors"
+            className="px-3 py-1 rounded-[var(--radius-md)] bg-red-600 hover:bg-red-500 text-white font-medium transition-colors"
           >
             Open Settings
           </button>
@@ -410,7 +410,7 @@ export default function App() {
       {clips.length > 0 ? (
         <ClipTable clips={filteredClips} directory={directory!} globalFilter={globalFilter} onPreview={setPreviewClip} hasActiveFilters={filterCount > 0} />
       ) : showScanningState ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-[#666]">
+        <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-label)]">
           <Loader2 size={36} className="mb-4 animate-spin opacity-40" />
           <p className="text-sm">Scanning footage…</p>
         </div>
@@ -418,15 +418,15 @@ export default function App() {
         <div className="flex-1 flex flex-col items-center justify-center gap-2">
           <Video size={56} className="text-[#2a2a2a] mb-2" />
           <p className="text-xl font-semibold text-[#ccc]">FootageOrganizer</p>
-          <p className="text-sm text-[#555] mb-5">AI-powered metadata for your video library</p>
+          <p className="text-sm text-[var(--border-focus)] mb-5">AI-powered metadata for your video library</p>
           <button
             onClick={openDirectory}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-lg)] bg-accent hover:bg-accent-hover text-sm font-medium transition-colors"
           >
             <FolderOpen size={16} />
             Open Directory
           </button>
-          <p className="text-xs text-[#444] mt-2">or drag a folder onto this window</p>
+          <p className="text-xs text-[var(--border-strong)] mt-2">or drag a folder onto this window</p>
         </div>
       ) : null}
 

@@ -25,15 +25,15 @@ export function ProgressBar({ scanProgress, aiProgress }: Props) {
   }
 
   return (
-    <div className="px-4 py-2 bg-[#1a1a1a] border-b border-[#333]">
+    <div className="px-4 py-2 bg-[var(--bg-surface)] border-b border-[var(--border-default)]">
       <div className="flex items-center gap-3">
-        <div className="flex-1 bg-[#252525] rounded-full h-2 overflow-hidden">
+        <div className="flex-1 bg-[var(--bg-elevated)] rounded-full h-2 overflow-hidden">
           <div
             className="h-full bg-accent rounded-full transition-all duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="text-xs text-[#999] whitespace-nowrap">{label}</span>
+        <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">{label}</span>
       </div>
     </div>
   )

@@ -59,12 +59,12 @@ export function SceneKeywordsCell({ clipId, keywords }: Props) {
           onBlur={handleAdd}
           autoFocus
           placeholder="keyword"
-          className="w-16 bg-[#252525] border border-emerald-700 rounded-full px-1.5 py-0 text-[10px] text-[#e5e5e5] outline-none placeholder-[#666]"
+          className="w-16 bg-[var(--bg-elevated)] border border-emerald-700 rounded-full px-1.5 py-0 text-[10px] text-[var(--text-primary)] outline-none placeholder-[var(--text-label)]"
         />
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="text-[#666] hover:text-[#999] transition-colors"
+          className="text-[var(--text-label)] hover:text-[var(--text-secondary)] transition-colors"
         >
           <Plus size={12} />
         </button>

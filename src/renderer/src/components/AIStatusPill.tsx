@@ -10,7 +10,7 @@ export function AIStatusPill({ status, onClick }: Props) {
   const config = {
     checking: {
       label: 'Checking…',
-      className: 'bg-[#252525] border-[#333] text-[#999]',
+      className: 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-secondary)]',
       icon: <Loader2 size={11} className="animate-spin" />
     },
     ready: {
