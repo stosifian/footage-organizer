@@ -26,6 +26,7 @@ export interface ProbeResult {
   resolution: string
   codec: string
   dateShot: string | null
+  frameRate: string | null // ffprobe rational, e.g. "30000/1001"; null if unknown
 }
 
 export async function probeFile(filePath: string, signal?: AbortSignal): Promise<ProbeResult> {
@@ -46,6 +47,9 @@ export async function probeFile(filePath: string, signal?: AbortSignal): Promise
   const height = videoStream?.height || 0
   const codec = videoStream?.codec_name || 'unknown'
 
+  const rawRate = videoStream?.r_frame_rate as string | undefined
+  const frameRate = rawRate && rawRate !== '0/0' ? rawRate : null
+
   let dateShot: string | null = null
   const tags = format.tags || {}
   const creationTime = tags.creation_time || tags.date || tags.com_apple_quicktime_creationdate
@@ -57,7 +61,8 @@ export async function probeFile(filePath: string, signal?: AbortSignal): Promise
     duration,
     resolution: width && height ? `${width}x${height}` : 'unknown',
     codec,
-    dateShot
+    dateShot,
+    frameRate
   }
 }
 

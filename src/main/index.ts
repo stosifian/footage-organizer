@@ -25,6 +25,7 @@ function buildMenu(win: BrowserWindow): void {
         { type: 'separator' },
         { label: 'Export as CSV…', accelerator: 'CmdOrCtrl+E', click: send('menu-export-csv') },
         { label: 'Export as JSON…', accelerator: 'CmdOrCtrl+Shift+E', click: send('menu-export-json') },
+        { label: 'Export as FCPXML…', click: send('menu-export-fcpxml') },
         { type: 'separator' },
         { label: 'Settings…', accelerator: 'CmdOrCtrl+,', click: send('menu-open-settings') }
       ]

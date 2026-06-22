@@ -44,6 +44,9 @@ Object.defineProperty(window, 'api', {
     onMenuOpenDirectory: vi.fn().mockReturnValue(() => {}),
     onMenuRescan: vi.fn().mockReturnValue(() => {}),
     onMenuOpenSettings: vi.fn().mockReturnValue(() => {}),
+    onMenuExportCsv: vi.fn().mockReturnValue(() => {}),
+    onMenuExportJson: vi.fn().mockReturnValue(() => {}),
+    onMenuExportFcpxml: vi.fn().mockReturnValue(() => {}),
   },
   writable: true
 })

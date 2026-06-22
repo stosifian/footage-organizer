@@ -124,6 +124,12 @@ const api = {
     const handler = () => callback()
     ipcRenderer.on('menu-export-json', handler)
     return () => ipcRenderer.removeListener('menu-export-json', handler)
+  },
+
+  onMenuExportFcpxml: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('menu-export-fcpxml', handler)
+    return () => ipcRenderer.removeListener('menu-export-fcpxml', handler)
   }
 }
 
