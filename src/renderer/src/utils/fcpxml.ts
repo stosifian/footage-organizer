@@ -1,8 +1,17 @@
 import type { ClipData } from '../types/clip'
 
-// FCPXML interchange export (targets v1.9 — broadly importable by DaVinci Resolve
-// and Final Cut). Clips become assets with searchable keywords (scene keywords +
-// all tag categories) and a note (scene description). Pure / no I/O.
+// FCPXML interchange export (targets v1.9). Emits a project > sequence > spine
+// timeline: one <asset> per clip (linked via <media-rep>), laid end-to-end, each
+// carrying <keyword> elements (scene keywords + all tag categories) and a <note>
+// (scene description). Pure / no I/O.
+//
+// METADATA CAVEAT (verified in DaVinci Resolve, 2026-06): Resolve imports the
+// timeline and links the media, but does NOT ingest the clip-level <keyword>/<note>
+// metadata into its Description/Comments/Keywords fields — a known limitation of
+// Resolve's FCPXML metadata import (Final Cut, reading its own format, does map them).
+// So in Resolve this export = a linked, ordered, named timeline; the searchable AI
+// metadata is carried by the CSV/JSON exports instead. The keyword/note data is still
+// validly present in the file for Final Cut and other FCPXML-aware tools.
 
 const DEFAULT_RATE = '30/1' // fallback fps when ffprobe didn't report one
 
