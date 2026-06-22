@@ -40,17 +40,37 @@ describe('scanDirectory', () => {
   })
 
   it('sets isScanning true during scan, false after', async () => {
-    let resolveScandirectory!: () => void
+    let resolveScandirectory!: (clips: unknown[]) => void
     vi.mocked(window.api.scanDirectory).mockReturnValueOnce(
-      new Promise<void>((res) => { resolveScandirectory = res })
+      new Promise<unknown[]>((res) => { resolveScandirectory = res })
     )
 
     const scanPromise = useClipStore.getState().scanDirectory('/Volumes/SSD/footage')
     expect(useClipStore.getState().isScanning).toBe(true)
 
-    resolveScandirectory()
+    resolveScandirectory([])
     await scanPromise
     expect(useClipStore.getState().isScanning).toBe(false)
+  })
+
+  it('renders clips from the scanDirectory return value even if no scan-clip events arrive (race regression)', async () => {
+    // Simulates the IPC race: the invoke response carries the clips, but the
+    // streamed scan-clip events are lost (onScanClip never fires).
+    const scanned = [
+      { id: 'a', fileName: 'A.mov', filePath: '/d/A.mov', relativePath: 'A.mov', folder: '',
+        dateShot: null, duration: 1, resolution: '1920x1080', codec: 'h264', fileSize: 1,
+        contentHash: null, thumbnailPath: null, sceneDescription: null, sceneKeywords: [],
+        visualTexture: [], energy: [], mood: [], lightQuality: [], location: [] },
+      { id: 'b', fileName: 'B.mov', filePath: '/d/B.mov', relativePath: 'B.mov', folder: '',
+        dateShot: null, duration: 1, resolution: '1920x1080', codec: 'h264', fileSize: 1,
+        contentHash: null, thumbnailPath: null, sceneDescription: null, sceneKeywords: [],
+        visualTexture: [], energy: [], mood: [], lightQuality: [], location: [] }
+    ]
+    vi.mocked(window.api.scanDirectory).mockResolvedValueOnce(scanned)
+    vi.mocked(window.api.onScanClip).mockReturnValue(() => {}) // no events delivered
+
+    await useClipStore.getState().scanDirectory('/d')
+    expect(useClipStore.getState().clips.map((c) => c.fileName)).toEqual(['A.mov', 'B.mov'])
   })
 
   it('sets directory to the provided path', async () => {
