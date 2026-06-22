@@ -142,4 +142,12 @@ describe('clipsToFcpxml', () => {
     const xml = clipsToFcpxml([makeClip({ filePath: '/Volumes/My SSD/A001.mov' })])
     expect(xml).toContain('src="file:///Volumes/My%20SSD/A001.mov"')
   })
+
+  it('references media via a <media-rep> child (modern FCPXML — Resolve links it)', () => {
+    const doc = parse(clipsToFcpxml([makeClip({ filePath: '/x/A001.mov' })]))
+    const rep = doc.querySelector('resources > asset > media-rep')
+    expect(rep).not.toBeNull()
+    expect(rep?.getAttribute('kind')).toBe('original-media')
+    expect(rep?.getAttribute('src')).toBe('file:///x/A001.mov')
+  })
 })

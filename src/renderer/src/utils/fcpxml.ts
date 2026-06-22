@@ -140,11 +140,15 @@ export function clipsToFcpxml(clips: ClipData[]): string {
     )
     .join('\n')
 
+  // Modern FCPXML (1.6+) references media via a <media-rep> child, not a bare
+  // src attribute — Resolve uses this to locate/relink the files on disk.
   const assetEls = assets
     .map(
       ({ clip, id, formatId, duration }) =>
-        `    <asset id="${id}" name="${escapeXml(clip.fileName)}" src="${fileUrl(clip.filePath)}" ` +
-        `start="0s" duration="${duration}" hasVideo="1" format="${formatId}"/>`
+        `    <asset id="${id}" name="${escapeXml(clip.fileName)}" ` +
+        `start="0s" duration="${duration}" hasVideo="1" videoSources="1" format="${formatId}">\n` +
+        `      <media-rep kind="original-media" src="${fileUrl(clip.filePath)}"/>\n` +
+        `    </asset>`
     )
     .join('\n')
 
