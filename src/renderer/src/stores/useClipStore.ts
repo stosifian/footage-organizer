@@ -100,8 +100,25 @@ export const useClipStore = create<ClipState>((set, get) => ({
 
     const matchedRelPaths = new Set<string>()
 
-    // Batch incoming clips to avoid triggering a re-render per file.
-    // Flush to state every BATCH_SIZE clips or when the scan completes.
+    // Merge one freshly-scanned clip with any existing project metadata
+    // (by relativePath, then by contentHash). Records the match in matchedRelPaths.
+    const mergeClip = (clip: ClipData): ClipData => {
+      let prev = byRelPath.get(clip.relativePath)
+      if (prev) {
+        matchedRelPaths.add(prev.relativePath)
+        return { ...clip, ...copyMetadata(prev) }
+      }
+      if (clip.contentHash) {
+        prev = byHash.get(clip.contentHash)
+        if (prev && !matchedRelPaths.has(prev.relativePath)) {
+          matchedRelPaths.add(prev.relativePath)
+          return { ...clip, ...copyMetadata(prev) }
+        }
+      }
+      return clip
+    }
+
+    // Batch incoming clips to render progressively during long scans.
     const BATCH_SIZE = 50
     let pendingBatch: ClipData[] = []
 
@@ -118,42 +135,27 @@ export const useClipStore = create<ClipState>((set, get) => ({
       set({ scanProgress: progress as ScanProgress })
     })
 
-    // Merge each clip with existing project metadata as it arrives from the main process.
+    // Progressive rendering as clips stream in. This is best-effort UI feedback only;
+    // the authoritative final list comes from the scanDirectory return value below
+    // (for fast scans the invoke response can beat these events, so they can't be relied on).
     const unsubClip = window.api.onScanClip((clip) => {
       if (myGen !== scanGeneration) return
-
-      let merged: ClipData = clip
-
-      let prev = byRelPath.get(clip.relativePath)
-      if (prev) {
-        matchedRelPaths.add(prev.relativePath)
-        merged = { ...clip, ...copyMetadata(prev) }
-      } else if (clip.contentHash) {
-        prev = byHash.get(clip.contentHash)
-        if (prev && !matchedRelPaths.has(prev.relativePath)) {
-          matchedRelPaths.add(prev.relativePath)
-          merged = { ...clip, ...copyMetadata(prev) }
-        }
-      }
-
-      pendingBatch.push(merged)
-      if (pendingBatch.length >= BATCH_SIZE) {
-        flushBatch()
-      }
+      pendingBatch.push(mergeClip(clip as ClipData))
+      if (pendingBatch.length >= BATCH_SIZE) flushBatch()
     })
 
     try {
-      // scanDirectory now returns void — clips arrive via scan-clip events above.
-      await window.api.scanDirectory(dirPath)
+      const scanned = ((await window.api.scanDirectory(dirPath)) || []) as ClipData[]
 
-      // If a newer scan has taken over, clean up listeners and bail without
-      // touching state (the new scan owns it now).
+      // If a newer scan has taken over, bail without touching state.
       if (myGen !== scanGeneration) return
 
-      // Flush the last partial batch
-      flushBatch()
+      // Reconcile from the authoritative return value — independent of event delivery
+      // timing. Recompute matches over the full scanned set, then rebuild the clip list.
+      matchedRelPaths.clear()
+      const mergedClips = scanned.map(mergeClip)
 
-      // Append old clips that are no longer on disk as missing ghost rows
+      // Old clips no longer on disk become missing ghost rows.
       const missingClips = project
         ? project.clips
             .filter((c) => !matchedRelPaths.has(c.relativePath))
@@ -161,11 +163,8 @@ export const useClipStore = create<ClipState>((set, get) => ({
             .map((c) => ({ ...c, missing: true, filePath: '' }))
         : []
 
-      if (missingClips.length > 0) {
-        set((state) => ({ clips: [...state.clips, ...missingClips] }))
-      }
-
-      set({ customTags: project?.customTags || get().customTags })
+      pendingBatch = [] // discard any unflushed streamed clips; the reconcile is authoritative
+      set({ clips: [...mergedClips, ...missingClips], customTags: project?.customTags || get().customTags })
     } finally {
       unsubProgress()
       unsubClip()

@@ -30,14 +30,18 @@ export function registerIpcHandlers(getWindow: () => BrowserWindow | null): void
 
     setRootDir(dirPath)
     const clips = await scanDirectory(dirPath, window)
-    // Clips are streamed to the renderer via 'scan-clip' events as they are probed.
-    // The return value is intentionally void.
 
     // Clean up thumbnails after the scan settles — non-blocking, never fails the scan.
     setImmediate(() => {
       pruneOrphanThumbnails(dirPath, clips.map((c) => c.relativePath))
       enforceThumbnailBudget()
     })
+
+    // Return the full clip list as the authoritative result. Clips also stream via
+    // 'scan-clip' events for progressive rendering, but the renderer must reconcile
+    // against this return value — for fast scans the invoke response can overtake the
+    // trailing scan-clip events, which would otherwise be lost.
+    return clips
   })
 
   ipcMain.handle('get-thumbnail', async (_event, clipId: string, filePath: string, relativePath: string, duration: number) => {

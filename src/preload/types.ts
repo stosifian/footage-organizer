@@ -1,6 +1,6 @@
 export interface ElectronAPI {
   selectDirectory: () => Promise<string | null>
-  scanDirectory: (dirPath: string) => Promise<void>
+  scanDirectory: (dirPath: string) => Promise<unknown[]>
   onScanClip: (callback: (clip: unknown) => void) => () => void
   getThumbnail: (clipId: string, filePath: string, relativePath: string, duration: number) => Promise<string | null>
   saveProject: (dirPath: string, project: unknown) => Promise<void>
