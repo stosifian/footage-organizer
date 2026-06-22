@@ -36,13 +36,24 @@ export function frameDurationFromRate(rate: string | null): string {
   return `${den}/${num}s`
 }
 
+// Whole frames for a duration at the given rate (>=1 frame).
+function frameCount(seconds: number, rate: string | null): number {
+  const [num, den] = parseRate(rate) ?? parseRate(DEFAULT_RATE)!
+  return Math.max(1, Math.round(seconds * (num / den)))
+}
+
+// A frame count rendered as an FCPXML rational time in the rate's timebase.
+// 0 → "0s" (FCPXML convention).
+function framesToTime(frames: number, rate: string | null): string {
+  if (frames === 0) return '0s'
+  const [num, den] = parseRate(rate) ?? parseRate(DEFAULT_RATE)!
+  return `${frames * den}/${num}s`
+}
+
 // Whole-frame clip duration as a rational matching the rate, so the clip imports
 // at exactly the right length: round(seconds * fps) frames, expressed over the rate.
 export function framesDuration(seconds: number, rate: string | null): string {
-  const [num, den] = parseRate(rate) ?? parseRate(DEFAULT_RATE)!
-  const fps = num / den
-  const frames = Math.max(1, Math.round(seconds * fps))
-  return `${frames * den}/${num}s`
+  return framesToTime(frameCount(seconds, rate), rate)
 }
 
 const KEYWORD_FIELDS: (keyof ClipData)[] = [
@@ -81,11 +92,46 @@ export function clipsToFcpxml(clips: ClipData[]): string {
     return fmt.id
   }
 
+  // Assets keep their native duration; the spine lays them out on one timebase.
   const assets = usable.map((clip, i) => {
     const formatId = formatIdFor(clip)
     const duration = framesDuration(clip.duration, clip.frameRate ?? null)
     return { clip, id: `a${i + 1}`, formatId, duration }
   })
+
+  // The sequence/timeline runs at one rate (first usable clip's, else default).
+  // Resolve imports the spine as a timeline; offsets accumulate in this timebase.
+  const seqRate = usable[0]?.frameRate ?? DEFAULT_RATE
+  // Ensure the sequence has a format to reference (even with zero clips).
+  const seqFormatId =
+    usable.length > 0
+      ? formatIdFor(usable[0])
+      : (() => {
+          const { width, height } = { width: 1920, height: 1080 }
+          const frameDuration = frameDurationFromRate(seqRate)
+          const id = `r${formats.size + 1}`
+          formats.set(`${frameDuration}|${width}|${height}`, { id, frameDuration, width, height })
+          return id
+        })()
+
+  let offsetFrames = 0
+  const spineClips = assets.map(({ clip, id }) => {
+    const durFrames = frameCount(clip.duration, seqRate)
+    const offset = framesToTime(offsetFrames, seqRate)
+    const duration = framesToTime(durFrames, seqRate)
+    offsetFrames += durFrames
+    const note = clip.sceneDescription
+      ? `\n          <note>${escapeXml(clip.sceneDescription)}</note>`
+      : ''
+    const keywords = keywordsFor(clip)
+      .map((k) => `\n          <keyword start="0s" duration="${duration}" value="${escapeXml(k)}"/>`)
+      .join('')
+    return (
+      `        <asset-clip ref="${id}" name="${escapeXml(clip.fileName)}" ` +
+      `offset="${offset}" duration="${duration}">${note}${keywords}\n        </asset-clip>`
+    )
+  })
+  const sequenceDuration = framesToTime(offsetFrames, seqRate)
 
   const formatEls = [...formats.values()]
     .map(
@@ -102,21 +148,6 @@ export function clipsToFcpxml(clips: ClipData[]): string {
     )
     .join('\n')
 
-  const clipEls = assets
-    .map(({ clip, id, formatId, duration }) => {
-      const note = clip.sceneDescription
-        ? `\n        <note>${escapeXml(clip.sceneDescription)}</note>`
-        : ''
-      const keywords = keywordsFor(clip)
-        .map((k) => `\n        <keyword start="0s" duration="${duration}" value="${escapeXml(k)}"/>`)
-        .join('')
-      return (
-        `      <asset-clip ref="${id}" name="${escapeXml(clip.fileName)}" ` +
-        `offset="0s" duration="${duration}" format="${formatId}">${note}${keywords}\n      </asset-clip>`
-      )
-    })
-    .join('\n')
-
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fcpxml>
 <fcpxml version="1.9">
@@ -126,7 +157,13 @@ ${assetEls}
   </resources>
   <library>
     <event name="FootageOrganizer Export">
-${clipEls}
+      <project name="FootageOrganizer Export">
+        <sequence format="${seqFormatId}" duration="${sequenceDuration}" tcStart="0s" tcFormat="NDF">
+          <spine>
+${spineClips.join('\n')}
+          </spine>
+        </sequence>
+      </project>
     </event>
   </library>
 </fcpxml>

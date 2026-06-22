@@ -69,6 +69,30 @@ describe('clipsToFcpxml', () => {
     expect(doc.querySelectorAll('asset-clip').length).toBe(2)
   })
 
+  it('wraps clips in a project > sequence > spine timeline (Resolve needs a sequence)', () => {
+    const doc = parse(clipsToFcpxml([makeClip()]))
+    expect(doc.querySelector('library > event > project')).not.toBeNull()
+    const seq = doc.querySelector('project > sequence')
+    expect(seq).not.toBeNull()
+    expect(seq?.getAttribute('format')).toBeTruthy()
+    expect(seq?.getAttribute('duration')).toBeTruthy()
+    const spine = doc.querySelector('sequence > spine')
+    expect(spine).not.toBeNull()
+    // asset-clips live inside the spine
+    expect(spine?.querySelectorAll('asset-clip').length).toBe(1)
+  })
+
+  it('lays spine clips end-to-end with cumulative offsets on one timebase', () => {
+    const clips = [
+      makeClip({ filePath: '/x/a.mov', frameRate: '30/1', duration: 2 }), // 60 frames
+      makeClip({ filePath: '/x/b.mov', frameRate: '30/1', duration: 3 })  // 90 frames
+    ]
+    const acs = parse(clipsToFcpxml(clips)).querySelectorAll('spine > asset-clip')
+    expect(acs[0].getAttribute('offset')).toBe('0s')
+    // second clip starts after the first (60 frames at 30fps = 60/30s)
+    expect(acs[1].getAttribute('offset')).toBe('60/30s')
+  })
+
   it('reuses one format per distinct fps+resolution', () => {
     const clips = [
       makeClip({ filePath: '/x/a.mov' }),
